@@ -1,22 +1,33 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Figure Skating Coach Pro API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: athletes
+    description: Athlete management
+  - name: sessions
+    description: Performance sessions
+  - name: elements
+    description: Skating elements (jumps, spins, steps)
+  - name: training
+    description: Training programs and drills
+  - name: rules
+    description: ISU rules and judging reference
+  - name: dashboard
+    description: Dashboard summaries
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +35,471 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /athletes:
+    get:
+      operationId: listAthletes
+      tags: [athletes]
+      summary: List all athletes
+      responses:
+        "200":
+          description: List of athletes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Athlete"
+    post:
+      operationId: createAthlete
+      tags: [athletes]
+      summary: Create a new athlete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AthleteInput"
+      responses:
+        "201":
+          description: Created athlete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Athlete"
+
+  /athletes/{id}:
+    get:
+      operationId: getAthlete
+      tags: [athletes]
+      summary: Get athlete by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Athlete details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Athlete"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateAthlete
+      tags: [athletes]
+      summary: Update athlete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AthleteUpdate"
+      responses:
+        "200":
+          description: Updated athlete
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Athlete"
+    delete:
+      operationId: deleteAthlete
+      tags: [athletes]
+      summary: Delete athlete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /sessions:
+    get:
+      operationId: listSessions
+      tags: [sessions]
+      summary: List performance sessions
+      parameters:
+        - name: athleteId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PerformanceSession"
+    post:
+      operationId: createSession
+      tags: [sessions]
+      summary: Create a performance session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PerformanceSessionInput"
+      responses:
+        "201":
+          description: Created session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceSession"
+
+  /sessions/{id}:
+    get:
+      operationId: getSession
+      tags: [sessions]
+      summary: Get session by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Session details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceSession"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateSession
+      tags: [sessions]
+      summary: Update session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PerformanceSessionUpdate"
+      responses:
+        "200":
+          description: Updated session
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceSession"
+    delete:
+      operationId: deleteSession
+      tags: [sessions]
+      summary: Delete session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /elements:
+    get:
+      operationId: listElements
+      tags: [elements]
+      summary: List skating elements for a session
+      parameters:
+        - name: sessionId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: athleteId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of elements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SkatingElement"
+    post:
+      operationId: createElement
+      tags: [elements]
+      summary: Log a skating element
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkatingElementInput"
+      responses:
+        "201":
+          description: Created element
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkatingElement"
+
+  /elements/{id}:
+    patch:
+      operationId: updateElement
+      tags: [elements]
+      summary: Update element
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SkatingElementUpdate"
+      responses:
+        "200":
+          description: Updated element
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SkatingElement"
+    delete:
+      operationId: deleteElement
+      tags: [elements]
+      summary: Delete element
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /training-programs:
+    get:
+      operationId: listTrainingPrograms
+      tags: [training]
+      summary: List training programs
+      parameters:
+        - name: athleteId
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [on_ice, off_ice, drill, conditioning, choreography]
+      responses:
+        "200":
+          description: List of training programs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrainingProgram"
+    post:
+      operationId: createTrainingProgram
+      tags: [training]
+      summary: Create a training program
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingProgramInput"
+      responses:
+        "201":
+          description: Created program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingProgram"
+
+  /training-programs/{id}:
+    get:
+      operationId: getTrainingProgram
+      tags: [training]
+      summary: Get training program by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Training program details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingProgram"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateTrainingProgram
+      tags: [training]
+      summary: Update training program
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TrainingProgramUpdate"
+      responses:
+        "200":
+          description: Updated program
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TrainingProgram"
+    delete:
+      operationId: deleteTrainingProgram
+      tags: [training]
+      summary: Delete training program
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /rules:
+    get:
+      operationId: listRules
+      tags: [rules]
+      summary: List ISU rules and judging reference
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [jumps, spins, steps, goe, pcs, general, penalties]
+      responses:
+        "200":
+          description: List of rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Rule"
+
+  /rules/{id}:
+    get:
+      operationId: getRule
+      tags: [rules]
+      summary: Get rule by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Rule details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Rule"
+        "404":
+          description: Not found
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/athlete-progress/{athleteId}:
+    get:
+      operationId: getAthleteProgress
+      tags: [dashboard]
+      summary: Get athlete score progress over time
+      parameters:
+        - name: athleteId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Progress data points
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProgressPoint"
+
+  /dashboard/element-stats/{athleteId}:
+    get:
+      operationId: getElementStats
+      tags: [dashboard]
+      summary: Get element execution stats for an athlete
+      parameters:
+        - name: athleteId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Element statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ElementStat"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +510,350 @@ components:
       required:
         - status
 
+    Athlete:
+      type: object
+      required: [id, name, discipline, level, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        discipline:
+          type: string
+          enum: [singles_men, singles_ladies, pairs, ice_dance]
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced, junior, senior]
+        dateOfBirth:
+          type: ["string", "null"]
+        nationality:
+          type: ["string", "null"]
+        personalBestScore:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    AthleteInput:
+      type: object
+      required: [name, discipline, level]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        discipline:
+          type: string
+          enum: [singles_men, singles_ladies, pairs, ice_dance]
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced, junior, senior]
+        dateOfBirth:
+          type: string
+        nationality:
+          type: string
+        notes:
+          type: string
+
+    AthleteUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        discipline:
+          type: string
+          enum: [singles_men, singles_ladies, pairs, ice_dance]
+        level:
+          type: string
+          enum: [beginner, intermediate, advanced, junior, senior]
+        dateOfBirth:
+          type: string
+        nationality:
+          type: string
+        personalBestScore:
+          type: number
+        notes:
+          type: string
+
+    PerformanceSession:
+      type: object
+      required: [id, athleteId, sessionType, date, createdAt]
+      properties:
+        id:
+          type: integer
+        athleteId:
+          type: integer
+        athleteName:
+          type: ["string", "null"]
+        sessionType:
+          type: string
+          enum: [short_program, free_skate, exhibition, practice]
+        date:
+          type: string
+        totalScore:
+          type: ["number", "null"]
+        technicalScore:
+          type: ["number", "null"]
+        componentScore:
+          type: ["number", "null"]
+        deductions:
+          type: ["number", "null"]
+        venue:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    PerformanceSessionInput:
+      type: object
+      required: [athleteId, sessionType, date]
+      properties:
+        athleteId:
+          type: integer
+        sessionType:
+          type: string
+          enum: [short_program, free_skate, exhibition, practice]
+        date:
+          type: string
+        totalScore:
+          type: number
+        technicalScore:
+          type: number
+        componentScore:
+          type: number
+        deductions:
+          type: number
+        venue:
+          type: string
+        notes:
+          type: string
+
+    PerformanceSessionUpdate:
+      type: object
+      properties:
+        sessionType:
+          type: string
+          enum: [short_program, free_skate, exhibition, practice]
+        date:
+          type: string
+        totalScore:
+          type: number
+        technicalScore:
+          type: number
+        componentScore:
+          type: number
+        deductions:
+          type: number
+        venue:
+          type: string
+        notes:
+          type: string
+
+    SkatingElement:
+      type: object
+      required: [id, sessionId, elementCode, elementType, baseValue, goe, createdAt]
+      properties:
+        id:
+          type: integer
+        sessionId:
+          type: integer
+        elementCode:
+          type: string
+        elementType:
+          type: string
+          enum: [jump, spin, step_sequence, choreographic]
+        baseValue:
+          type: number
+        goe:
+          type: number
+        executedScore:
+          type: ["number", "null"]
+        isUnderRotated:
+          type: boolean
+        isFallDown:
+          type: boolean
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    SkatingElementInput:
+      type: object
+      required: [sessionId, elementCode, elementType, baseValue, goe]
+      properties:
+        sessionId:
+          type: integer
+        elementCode:
+          type: string
+        elementType:
+          type: string
+          enum: [jump, spin, step_sequence, choreographic]
+        baseValue:
+          type: number
+        goe:
+          type: number
+        isUnderRotated:
+          type: boolean
+        isFallDown:
+          type: boolean
+        notes:
+          type: string
+
+    SkatingElementUpdate:
+      type: object
+      properties:
+        goe:
+          type: number
+        isUnderRotated:
+          type: boolean
+        isFallDown:
+          type: boolean
+        notes:
+          type: string
+
+    TrainingProgram:
+      type: object
+      required: [id, title, type, duration, exercises, createdAt]
+      properties:
+        id:
+          type: integer
+        athleteId:
+          type: ["integer", "null"]
+        athleteName:
+          type: ["string", "null"]
+        title:
+          type: string
+        type:
+          type: string
+          enum: [on_ice, off_ice, drill, conditioning, choreography]
+        duration:
+          type: integer
+          description: Duration in minutes
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, elite]
+        focus:
+          type: ["string", "null"]
+        exercises:
+          type: string
+          description: JSON string of exercise list
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    TrainingProgramInput:
+      type: object
+      required: [title, type, duration, exercises]
+      properties:
+        athleteId:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        type:
+          type: string
+          enum: [on_ice, off_ice, drill, conditioning, choreography]
+        duration:
+          type: integer
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, elite]
+        focus:
+          type: string
+        exercises:
+          type: string
+        notes:
+          type: string
+
+    TrainingProgramUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [on_ice, off_ice, drill, conditioning, choreography]
+        duration:
+          type: integer
+        difficulty:
+          type: string
+          enum: [easy, medium, hard, elite]
+        focus:
+          type: string
+        exercises:
+          type: string
+        notes:
+          type: string
+
+    Rule:
+      type: object
+      required: [id, category, title, description]
+      properties:
+        id:
+          type: integer
+        category:
+          type: string
+          enum: [jumps, spins, steps, goe, pcs, general, penalties]
+        title:
+          type: string
+        description:
+          type: string
+        details:
+          type: ["string", "null"]
+        isuReference:
+          type: ["string", "null"]
+
+    DashboardSummary:
+      type: object
+      required: [totalAthletes, totalSessions, totalTrainingPrograms, avgScore, recentSessions, topAthletes]
+      properties:
+        totalAthletes:
+          type: integer
+        totalSessions:
+          type: integer
+        totalTrainingPrograms:
+          type: integer
+        avgScore:
+          type: number
+        recentSessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/PerformanceSession"
+        topAthletes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Athlete"
+
+    ProgressPoint:
+      type: object
+      required: [date, totalScore, sessionType]
+      properties:
+        date:
+          type: string
+        totalScore:
+          type: number
+        technicalScore:
+          type: ["number", "null"]
+        componentScore:
+          type: ["number", "null"]
+        sessionType:
+          type: string
+
+    ElementStat:
+      type: object
+      required: [elementCode, elementType, attempts, successRate, avgGoe]
+      properties:
+        elementCode:
+          type: string
+        elementType:
+          type: string
+        attempts:
+          type: integer
+        successRate:
+          type: number
+        avgGoe:
+          type: number
+        avgBaseValue:
+          type: number
