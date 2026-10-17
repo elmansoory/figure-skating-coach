@@ -9,11 +9,16 @@ import type { TrainingProgramUpdateDifficulty } from "./trainingProgramUpdateDif
 import type { TrainingProgramUpdateType } from "./trainingProgramUpdateType";
 
 export interface TrainingProgramUpdate {
+  /** @nullable */
+  athleteId?: number | null;
+  /** @minLength 1 */
   title?: string;
   type?: TrainingProgramUpdateType;
   duration?: number;
   difficulty?: TrainingProgramUpdateDifficulty;
-  focus?: string;
+  /** @nullable */
+  focus?: string | null;
   exercises?: string;
-  notes?: string;
+  /** @nullable */
+  notes?: string | null;
 }

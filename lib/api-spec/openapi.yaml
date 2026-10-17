@@ -560,6 +560,7 @@ components:
       properties:
         name:
           type: string
+          minLength: 1
         discipline:
           type: string
           enum: [singles_men, singles_ladies, pairs, ice_dance]
@@ -567,13 +568,13 @@ components:
           type: string
           enum: [beginner, intermediate, advanced, junior, senior]
         dateOfBirth:
-          type: string
+          type: ["string", "null"]
         nationality:
-          type: string
+          type: ["string", "null"]
         personalBestScore:
-          type: number
+          type: ["number", "null"]
         notes:
-          type: string
+          type: ["string", "null"]
 
     PerformanceSession:
       type: object
@@ -638,17 +639,17 @@ components:
         date:
           type: string
         totalScore:
-          type: number
+          type: ["number", "null"]
         technicalScore:
-          type: number
+          type: ["number", "null"]
         componentScore:
-          type: number
+          type: ["number", "null"]
         deductions:
-          type: number
+          type: ["number", "null"]
         venue:
-          type: string
+          type: ["string", "null"]
         notes:
-          type: string
+          type: ["string", "null"]
 
     SkatingElement:
       type: object
@@ -703,6 +704,14 @@ components:
     SkatingElementUpdate:
       type: object
       properties:
+        elementCode:
+          type: string
+          minLength: 1
+        elementType:
+          type: string
+          enum: [jump, spin, step_sequence, choreographic]
+        baseValue:
+          type: number
         goe:
           type: number
         isUnderRotated:
@@ -710,7 +719,7 @@ components:
         isFallDown:
           type: boolean
         notes:
-          type: string
+          type: ["string", "null"]
 
     TrainingProgram:
       type: object
@@ -770,8 +779,11 @@ components:
     TrainingProgramUpdate:
       type: object
       properties:
+        athleteId:
+          type: ["integer", "null"]
         title:
           type: string
+          minLength: 1
         type:
           type: string
           enum: [on_ice, off_ice, drill, conditioning, choreography]
@@ -781,11 +793,11 @@ components:
           type: string
           enum: [easy, medium, hard, elite]
         focus:
-          type: string
+          type: ["string", "null"]
         exercises:
           type: string
         notes:
-          type: string
+          type: ["string", "null"]
 
     Rule:
       type: object

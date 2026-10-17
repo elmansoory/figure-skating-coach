@@ -56,7 +56,7 @@ export default function NewTraining() {
         duration: parseInt(duration, 10),
         difficulty: difficulty || undefined,
         focus,
-        athleteId: athleteId ? parseInt(athleteId, 10) : undefined,
+        athleteId: athleteId && athleteId !== "none" ? parseInt(athleteId, 10) : undefined,
         exercises: JSON.stringify(filteredExercises),
         notes
       }

@@ -98,13 +98,18 @@ export const AthleteUpdateLevel = {
 } as const;
 
 export interface AthleteUpdate {
+  /** @minLength 1 */
   name?: string;
   discipline?: AthleteUpdateDiscipline;
   level?: AthleteUpdateLevel;
-  dateOfBirth?: string;
-  nationality?: string;
-  personalBestScore?: number;
-  notes?: string;
+  /** @nullable */
+  dateOfBirth?: string | null;
+  /** @nullable */
+  nationality?: string | null;
+  /** @nullable */
+  personalBestScore?: number | null;
+  /** @nullable */
+  notes?: string | null;
 }
 
 export type PerformanceSessionSessionType =
@@ -174,12 +179,18 @@ export const PerformanceSessionUpdateSessionType = {
 export interface PerformanceSessionUpdate {
   sessionType?: PerformanceSessionUpdateSessionType;
   date?: string;
-  totalScore?: number;
-  technicalScore?: number;
-  componentScore?: number;
-  deductions?: number;
-  venue?: string;
-  notes?: string;
+  /** @nullable */
+  totalScore?: number | null;
+  /** @nullable */
+  technicalScore?: number | null;
+  /** @nullable */
+  componentScore?: number | null;
+  /** @nullable */
+  deductions?: number | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  notes?: string | null;
 }
 
 export type SkatingElementElementType =
@@ -229,11 +240,26 @@ export interface SkatingElementInput {
   notes?: string;
 }
 
+export type SkatingElementUpdateElementType =
+  (typeof SkatingElementUpdateElementType)[keyof typeof SkatingElementUpdateElementType];
+
+export const SkatingElementUpdateElementType = {
+  jump: "jump",
+  spin: "spin",
+  step_sequence: "step_sequence",
+  choreographic: "choreographic",
+} as const;
+
 export interface SkatingElementUpdate {
+  /** @minLength 1 */
+  elementCode?: string;
+  elementType?: SkatingElementUpdateElementType;
+  baseValue?: number;
   goe?: number;
   isUnderRotated?: boolean;
   isFallDown?: boolean;
-  notes?: string;
+  /** @nullable */
+  notes?: string | null;
 }
 
 export type TrainingProgramType =
@@ -332,13 +358,18 @@ export const TrainingProgramUpdateDifficulty = {
 } as const;
 
 export interface TrainingProgramUpdate {
+  /** @nullable */
+  athleteId?: number | null;
+  /** @minLength 1 */
   title?: string;
   type?: TrainingProgramUpdateType;
   duration?: number;
   difficulty?: TrainingProgramUpdateDifficulty;
-  focus?: string;
+  /** @nullable */
+  focus?: string | null;
   exercises?: string;
-  notes?: string;
+  /** @nullable */
+  notes?: string | null;
 }
 
 export type RuleCategory = (typeof RuleCategory)[keyof typeof RuleCategory];

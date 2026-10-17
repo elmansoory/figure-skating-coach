@@ -1,6 +1,20 @@
 import { useState } from "react";
-import { useParams, Link } from "wouter";
-import { useGetSession, useListElements, useCreateElement, SkatingElementInputElementType, getListElementsQueryKey, getGetSessionQueryKey } from "@workspace/api-client-react";
+import { useParams, Link, useLocation } from "wouter";
+import {
+  useGetSession,
+  useListElements,
+  useCreateElement,
+  useUpdateElement,
+  useDeleteElement,
+  useUpdateSession,
+  useDeleteSession,
+  SkatingElementInputElementType,
+  PerformanceSessionUpdateSessionType,
+  getListElementsQueryKey,
+  getGetSessionQueryKey,
+  type PerformanceSession,
+  type SkatingElement,
+} from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -9,22 +23,158 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowLeft, Plus } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ConfirmDelete } from "@/components/confirm-delete";
+import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
+const optionalNumber = (value: string) => (value.trim() === "" ? null : parseFloat(value));
+
+function EditSessionDialog({ session }: { session: PerformanceSession }) {
+  const updateSession = useUpdateSession();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+
+  const [sessionType, setSessionType] = useState<PerformanceSessionUpdateSessionType>(session.sessionType);
+  const [date, setDate] = useState("");
+  const [totalScore, setTotalScore] = useState("");
+  const [technicalScore, setTechnicalScore] = useState("");
+  const [componentScore, setComponentScore] = useState("");
+  const [deductions, setDeductions] = useState("");
+  const [venue, setVenue] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      setSessionType(session.sessionType);
+      setDate(format(new Date(session.date), "yyyy-MM-dd"));
+      setTotalScore(session.totalScore?.toString() ?? "");
+      setTechnicalScore(session.technicalScore?.toString() ?? "");
+      setComponentScore(session.componentScore?.toString() ?? "");
+      setDeductions(session.deductions?.toString() ?? "");
+      setVenue(session.venue ?? "");
+      setNotes(session.notes ?? "");
+    }
+    setOpen(next);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date) return;
+
+    updateSession.mutate({
+      id: session.id,
+      data: {
+        sessionType,
+        date: new Date(date).toISOString(),
+        totalScore: optionalNumber(totalScore),
+        technicalScore: optionalNumber(technicalScore),
+        componentScore: optionalNumber(componentScore),
+        deductions: optionalNumber(deductions),
+        venue: venue.trim() || null,
+        notes: notes.trim() || null,
+      }
+    }, {
+      onSuccess: () => {
+        toast({ title: "Success", description: "Session updated" });
+        queryClient.invalidateQueries();
+        setOpen(false);
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to update session", variant: "destructive" });
+      }
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Pencil className="w-4 h-4 mr-2" />
+          Edit
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Session</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-type">Session Type</Label>
+              <Select value={sessionType} onValueChange={(v) => setSessionType(v as PerformanceSessionUpdateSessionType)}>
+                <SelectTrigger id="edit-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="short_program">Short Program</SelectItem>
+                  <SelectItem value="free_skate">Free Skate</SelectItem>
+                  <SelectItem value="exhibition">Exhibition</SelectItem>
+                  <SelectItem value="practice">Practice</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-date">Date</Label>
+              <Input id="edit-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-total">Total Score</Label>
+              <Input id="edit-total" type="number" step="0.01" value={totalScore} onChange={(e) => setTotalScore(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-tes">TES</Label>
+              <Input id="edit-tes" type="number" step="0.01" value={technicalScore} onChange={(e) => setTechnicalScore(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-pcs">PCS</Label>
+              <Input id="edit-pcs" type="number" step="0.01" value={componentScore} onChange={(e) => setComponentScore(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-deductions">Deductions</Label>
+              <Input id="edit-deductions" type="number" step="0.01" min="0" value={deductions} onChange={(e) => setDeductions(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-venue">Venue</Label>
+            <Input id="edit-venue" value={venue} onChange={(e) => setVenue(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-notes">Notes</Label>
+            <Textarea id="edit-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+          </div>
+          <div className="pt-4 flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={updateSession.isPending}>
+              {updateSession.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function SessionDetail() {
   const params = useParams();
   const id = Number(params.id);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: session, isLoading: isLoadingSession } = useGetSession(id, { query: { enabled: !!id } });
-  const { data: elements, isLoading: isLoadingElements } = useListElements({ sessionId: id }, { query: { enabled: !!id } });
+  const { data: session, isLoading: isLoadingSession } = useGetSession(id, { query: { enabled: !!id, queryKey: getGetSessionQueryKey(id) } });
+  const { data: elements, isLoading: isLoadingElements } = useListElements({ sessionId: id }, { query: { enabled: !!id, queryKey: getListElementsQueryKey({ sessionId: id }) } });
   const createElement = useCreateElement();
+  const updateElement = useUpdateElement();
+  const deleteElement = useDeleteElement();
+  const deleteSession = useDeleteSession();
 
   const [open, setOpen] = useState(false);
+  // null while adding a new element, otherwise the element being edited
+  const [editingElement, setEditingElement] = useState<SkatingElement | null>(null);
   const [elementCode, setElementCode] = useState("");
   const [elementType, setElementType] = useState<SkatingElementInputElementType>("jump");
   const [baseValue, setBaseValue] = useState("");
@@ -32,38 +182,74 @@ export default function SessionDetail() {
   const [isUnderRotated, setIsUnderRotated] = useState(false);
   const [isFallDown, setIsFallDown] = useState(false);
 
+  const openElementDialog = (element: SkatingElement | null) => {
+    setEditingElement(element);
+    setElementCode(element?.elementCode ?? "");
+    setElementType(element?.elementType ?? "jump");
+    setBaseValue(element?.baseValue.toString() ?? "");
+    setGoe(element?.goe.toString() ?? "");
+    setIsUnderRotated(element?.isUnderRotated ?? false);
+    setIsFallDown(element?.isFallDown ?? false);
+    setOpen(true);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!elementCode || !baseValue || !goe) return;
 
-    createElement.mutate({
-      data: {
-        sessionId: id,
-        elementCode,
-        elementType,
-        baseValue: parseFloat(baseValue),
-        goe: parseFloat(goe),
-        isUnderRotated,
-        isFallDown
-      }
-    }, {
+    const data = {
+      elementCode,
+      elementType,
+      baseValue: parseFloat(baseValue),
+      goe: parseFloat(goe),
+      isUnderRotated,
+      isFallDown
+    };
+    const callbacks = {
       onSuccess: () => {
-        toast({ title: "Success", description: "Element added successfully" });
-        queryClient.invalidateQueries({ queryKey: getListElementsQueryKey({ sessionId: id }) });
-        queryClient.invalidateQueries({ queryKey: getGetSessionQueryKey(id) });
+        toast({ title: "Success", description: editingElement ? "Element updated" : "Element added successfully" });
+        queryClient.invalidateQueries();
         setOpen(false);
-        // Reset form
-        setElementCode("");
-        setBaseValue("");
-        setGoe("");
-        setIsUnderRotated(false);
-        setIsFallDown(false);
       },
       onError: () => {
-        toast({ title: "Error", description: "Failed to add element", variant: "destructive" });
+        toast({ title: "Error", description: editingElement ? "Failed to update element" : "Failed to add element", variant: "destructive" });
+      }
+    };
+
+    if (editingElement) {
+      updateElement.mutate({ id: editingElement.id, data }, callbacks);
+    } else {
+      createElement.mutate({ data: { sessionId: id, ...data } }, callbacks);
+    }
+  };
+
+  const handleDeleteElement = (elementId: number) => {
+    deleteElement.mutate({ id: elementId }, {
+      onSuccess: () => {
+        toast({ title: "Element deleted" });
+        queryClient.invalidateQueries();
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to delete element", variant: "destructive" });
       }
     });
   };
+
+  const handleDeleteSession = () => {
+    deleteSession.mutate({ id }, {
+      onSuccess: () => {
+        toast({ title: "Session deleted" });
+        queryClient.removeQueries({ queryKey: getGetSessionQueryKey(id) });
+        queryClient.invalidateQueries();
+        setLocation("/sessions");
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to delete session", variant: "destructive" });
+      }
+    });
+  };
+
+  const isSavingElement = createElement.isPending || updateElement.isPending;
 
   if (isLoadingSession) {
     return <div className="space-y-6"><Skeleton className="h-32 w-full" /></div>;
@@ -90,6 +276,21 @@ export default function SessionDetail() {
               </>
             )}
           </div>
+        </div>
+        <div className="ml-auto flex gap-2">
+          <EditSessionDialog session={session} />
+          <ConfirmDelete
+            trigger={
+              <Button variant="outline" size="sm" className="text-destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            }
+            title="Delete this session?"
+            description="This permanently deletes the session and all of its recorded elements."
+            onConfirm={handleDeleteSession}
+            isPending={deleteSession.isPending}
+          />
         </div>
       </div>
 
@@ -143,15 +344,13 @@ export default function SessionDetail() {
             <CardDescription>Detailed breakdown of executed elements</CardDescription>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Element
-              </Button>
-            </DialogTrigger>
+            <Button variant="outline" size="sm" onClick={() => openElementDialog(null)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Element
+            </Button>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add Technical Element</DialogTitle>
+                <DialogTitle>{editingElement ? "Edit Technical Element" : "Add Technical Element"}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 pt-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -196,8 +395,8 @@ export default function SessionDetail() {
 
                 <div className="pt-4 flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                  <Button type="submit" disabled={createElement.isPending}>
-                    {createElement.isPending ? "Adding..." : "Add Element"}
+                  <Button type="submit" disabled={isSavingElement}>
+                    {isSavingElement ? "Saving..." : editingElement ? "Save Changes" : "Add Element"}
                   </Button>
                 </div>
               </form>
@@ -219,7 +418,8 @@ export default function SessionDetail() {
                     <th className="text-left font-medium pb-2 pr-4">Type</th>
                     <th className="text-right font-medium pb-2 pr-4">Base Value</th>
                     <th className="text-right font-medium pb-2 pr-4">GOE</th>
-                    <th className="text-right font-medium pb-2">Score</th>
+                    <th className="text-right font-medium pb-2 pr-4">Score</th>
+                    <th className="pb-2"><span className="sr-only">Actions</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -240,14 +440,30 @@ export default function SessionDetail() {
                       <td className={`py-3 pr-4 text-right font-mono font-semibold ${el.goe > 0 ? 'text-green-500 dark:text-green-400' : el.goe < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                         {el.goe > 0 ? '+' : ''}{el.goe.toFixed(2)}
                       </td>
-                      <td className="py-3 text-right font-mono font-bold text-foreground">
+                      <td className="py-3 pr-4 text-right font-mono font-bold text-foreground">
                         {el.executedScore?.toFixed(2) || (el.baseValue + el.goe).toFixed(2)}
+                      </td>
+                      <td className="py-3 text-right whitespace-nowrap">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Edit ${el.elementCode}`} onClick={() => openElementDialog(el)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <ConfirmDelete
+                          trigger={
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" aria-label={`Delete ${el.elementCode}`}>
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          }
+                          title={`Delete ${el.elementCode}?`}
+                          description="This element will be removed from the session."
+                          onConfirm={() => handleDeleteElement(el.id)}
+                          isPending={deleteElement.isPending}
+                        />
                       </td>
                     </tr>
                   ))}
                   {elements?.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-muted-foreground">No elements logged.</td>
+                      <td colSpan={7} className="py-8 text-center text-muted-foreground">No elements logged.</td>
                     </tr>
                   )}
                 </tbody>

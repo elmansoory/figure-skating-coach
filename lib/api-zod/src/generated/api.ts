@@ -70,17 +70,17 @@ export const UpdateAthleteParams = zod.object({
 });
 
 export const UpdateAthleteBody = zod.object({
-  name: zod.string().optional(),
+  name: zod.string().min(1).optional(),
   discipline: zod
     .enum(["singles_men", "singles_ladies", "pairs", "ice_dance"])
     .optional(),
   level: zod
     .enum(["beginner", "intermediate", "advanced", "junior", "senior"])
     .optional(),
-  dateOfBirth: zod.string().optional(),
-  nationality: zod.string().optional(),
-  personalBestScore: zod.number().optional(),
-  notes: zod.string().optional(),
+  dateOfBirth: zod.string().nullish(),
+  nationality: zod.string().nullish(),
+  personalBestScore: zod.number().nullish(),
+  notes: zod.string().nullish(),
 });
 
 export const UpdateAthleteResponse = zod.object({
@@ -189,12 +189,12 @@ export const UpdateSessionBody = zod.object({
     .enum(["short_program", "free_skate", "exhibition", "practice"])
     .optional(),
   date: zod.string().optional(),
-  totalScore: zod.number().optional(),
-  technicalScore: zod.number().optional(),
-  componentScore: zod.number().optional(),
-  deductions: zod.number().optional(),
-  venue: zod.string().optional(),
-  notes: zod.string().optional(),
+  totalScore: zod.number().nullish(),
+  technicalScore: zod.number().nullish(),
+  componentScore: zod.number().nullish(),
+  deductions: zod.number().nullish(),
+  venue: zod.string().nullish(),
+  notes: zod.string().nullish(),
 });
 
 export const UpdateSessionResponse = zod.object({
@@ -269,10 +269,15 @@ export const UpdateElementParams = zod.object({
 });
 
 export const UpdateElementBody = zod.object({
+  elementCode: zod.string().min(1).optional(),
+  elementType: zod
+    .enum(["jump", "spin", "step_sequence", "choreographic"])
+    .optional(),
+  baseValue: zod.number().optional(),
   goe: zod.number().optional(),
   isUnderRotated: zod.boolean().optional(),
   isFallDown: zod.boolean().optional(),
-  notes: zod.string().optional(),
+  notes: zod.string().nullish(),
 });
 
 export const UpdateElementResponse = zod.object({
@@ -385,15 +390,16 @@ export const UpdateTrainingProgramParams = zod.object({
 });
 
 export const UpdateTrainingProgramBody = zod.object({
-  title: zod.string().optional(),
+  athleteId: zod.number().nullish(),
+  title: zod.string().min(1).optional(),
   type: zod
     .enum(["on_ice", "off_ice", "drill", "conditioning", "choreography"])
     .optional(),
   duration: zod.number().optional(),
   difficulty: zod.enum(["easy", "medium", "hard", "elite"]).optional(),
-  focus: zod.string().optional(),
+  focus: zod.string().nullish(),
   exercises: zod.string().optional(),
-  notes: zod.string().optional(),
+  notes: zod.string().nullish(),
 });
 
 export const UpdateTrainingProgramResponse = zod.object({

@@ -1,5 +1,5 @@
 import { useParams, Link } from "wouter";
-import { useGetRule } from "@workspace/api-client-react";
+import { useGetRule, getGetRuleQueryKey } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ export default function RuleDetail() {
   const params = useParams();
   const id = Number(params.id);
 
-  const { data: rule, isLoading } = useGetRule(id, { query: { enabled: !!id } });
+  const { data: rule, isLoading } = useGetRule(id, { query: { enabled: !!id, queryKey: getGetRuleQueryKey(id) } });
 
   if (isLoading) {
     return <div className="space-y-6"><Skeleton className="h-32 w-full" /></div>;

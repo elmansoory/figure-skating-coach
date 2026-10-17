@@ -1,15 +1,241 @@
-import { useParams, Link } from "wouter";
-import { useGetTrainingProgram } from "@workspace/api-client-react";
+import { useState } from "react";
+import { useParams, Link, useLocation } from "wouter";
+import {
+  useGetTrainingProgram,
+  useUpdateTrainingProgram,
+  useDeleteTrainingProgram,
+  useListAthletes,
+  getGetTrainingProgramQueryKey,
+  type TrainingProgram,
+  type TrainingProgramUpdateType,
+  type TrainingProgramUpdateDifficulty,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Clock, Target, Info } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDelete } from "@/components/confirm-delete";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Clock, Target, Info, Pencil, Plus, Trash2 } from "lucide-react";
+
+const parseExercises = (raw: string): string[] => {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(String) : [];
+  } catch {
+    return [];
+  }
+};
+
+function EditTrainingDialog({ program }: { program: TrainingProgram }) {
+  const updateProgram = useUpdateTrainingProgram();
+  const { data: athletes } = useListAthletes();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+
+  const [title, setTitle] = useState("");
+  const [type, setType] = useState<TrainingProgramUpdateType>(program.type);
+  const [duration, setDuration] = useState("");
+  const [difficulty, setDifficulty] = useState<TrainingProgramUpdateDifficulty>("medium");
+  const [focus, setFocus] = useState("");
+  const [athleteId, setAthleteId] = useState("none");
+  const [notes, setNotes] = useState("");
+  const [exercises, setExercises] = useState<string[]>([""]);
+
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      const current = parseExercises(program.exercises);
+      setTitle(program.title);
+      setType(program.type);
+      setDuration(program.duration.toString());
+      setDifficulty(program.difficulty ?? "medium");
+      setFocus(program.focus ?? "");
+      setAthleteId(program.athleteId ? program.athleteId.toString() : "none");
+      setNotes(program.notes ?? "");
+      setExercises(current.length > 0 ? current : [""]);
+    }
+    setOpen(next);
+  };
+
+  const handleExerciseChange = (index: number, value: string) => {
+    const newEx = [...exercises];
+    newEx[index] = value;
+    setExercises(newEx);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !duration) return;
+
+    updateProgram.mutate({
+      id: program.id,
+      data: {
+        title: title.trim(),
+        type,
+        duration: parseInt(duration, 10),
+        difficulty,
+        focus: focus.trim() || null,
+        athleteId: athleteId === "none" ? null : parseInt(athleteId, 10),
+        exercises: JSON.stringify(exercises.filter(ex => ex.trim() !== "")),
+        notes: notes.trim() || null,
+      }
+    }, {
+      onSuccess: () => {
+        toast({ title: "Success", description: "Program updated" });
+        queryClient.invalidateQueries();
+        setOpen(false);
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to update program", variant: "destructive" });
+      }
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Pencil className="w-4 h-4 mr-2" />
+          Edit
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Edit Training Program</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-title">Program Title</Label>
+            <Input id="edit-title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-type">Training Type</Label>
+              <Select value={type} onValueChange={(v) => setType(v as TrainingProgramUpdateType)}>
+                <SelectTrigger id="edit-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="on_ice">On Ice</SelectItem>
+                  <SelectItem value="off_ice">Off Ice</SelectItem>
+                  <SelectItem value="drill">Drill</SelectItem>
+                  <SelectItem value="conditioning">Conditioning</SelectItem>
+                  <SelectItem value="choreography">Choreography</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-duration">Duration (minutes)</Label>
+              <Input id="edit-duration" type="number" min="1" value={duration} onChange={(e) => setDuration(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-difficulty">Difficulty</Label>
+              <Select value={difficulty} onValueChange={(v) => setDifficulty(v as TrainingProgramUpdateDifficulty)}>
+                <SelectTrigger id="edit-difficulty">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                  <SelectItem value="elite">Elite</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-athlete">Assigned Athlete</Label>
+              <Select value={athleteId} onValueChange={setAthleteId}>
+                <SelectTrigger id="edit-athlete">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">General Program (Unassigned)</SelectItem>
+                  {athletes?.map(a => (
+                    <SelectItem key={a.id} value={a.id.toString()}>{a.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-focus">Primary Focus</Label>
+            <Input id="edit-focus" value={focus} onChange={(e) => setFocus(e.target.value)} />
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Exercises</Label>
+              <Button type="button" variant="outline" size="sm" onClick={() => setExercises([...exercises, ""])}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Exercise
+              </Button>
+            </div>
+            {exercises.map((ex, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <Input
+                  value={ex}
+                  onChange={(e) => handleExerciseChange(index, e.target.value)}
+                  placeholder={`Exercise ${index + 1}`}
+                  aria-label={`Exercise ${index + 1}`}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Remove exercise ${index + 1}`}
+                  onClick={() => setExercises(exercises.filter((_, i) => i !== index))}
+                  disabled={exercises.length === 1}
+                  className="text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-notes">Notes</Label>
+            <Textarea id="edit-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+          </div>
+          <div className="pt-4 flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={updateProgram.isPending}>
+              {updateProgram.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function TrainingDetail() {
   const params = useParams();
   const id = Number(params.id);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const deleteProgram = useDeleteTrainingProgram();
 
-  const { data: program, isLoading } = useGetTrainingProgram(id, { query: { enabled: !!id } });
+  const { data: program, isLoading } = useGetTrainingProgram(id, { query: { enabled: !!id, queryKey: getGetTrainingProgramQueryKey(id) } });
+
+  const handleDelete = () => {
+    deleteProgram.mutate({ id }, {
+      onSuccess: () => {
+        toast({ title: "Program deleted" });
+        queryClient.removeQueries({ queryKey: getGetTrainingProgramQueryKey(id) });
+        queryClient.invalidateQueries();
+        setLocation("/training");
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to delete program", variant: "destructive" });
+      }
+    });
+  };
 
   if (isLoading) {
     return <div className="space-y-6"><Skeleton className="h-32 w-full" /></div>;
@@ -17,12 +243,7 @@ export default function TrainingDetail() {
 
   if (!program) return <div>Program not found</div>;
 
-  let exercises: string[] = [];
-  try {
-    exercises = JSON.parse(program.exercises);
-  } catch (e) {
-    // ignore parsing errors
-  }
+  const exercises = parseExercises(program.exercises);
 
   return (
     <div className="space-y-6">
@@ -51,6 +272,21 @@ export default function TrainingDetail() {
               </>
             )}
           </div>
+        </div>
+        <div className="ml-auto flex gap-2">
+          <EditTrainingDialog program={program} />
+          <ConfirmDelete
+            trigger={
+              <Button variant="outline" size="sm" className="text-destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            }
+            title={`Delete "${program.title}"?`}
+            description="This permanently deletes the training program."
+            onConfirm={handleDelete}
+            isPending={deleteProgram.isPending}
+          />
         </div>
       </div>
 

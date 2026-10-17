@@ -1,10 +1,13 @@
-import { pgTable, serial, integer, text, real, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, integer, text, real, boolean, timestamp, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
+import { sessionsTable } from "./sessions";
 
 export const elementsTable = pgTable("skating_elements", {
   id: serial("id").primaryKey(),
-  sessionId: integer("session_id").notNull(),
+  sessionId: integer("session_id")
+    .notNull()
+    .references(() => sessionsTable.id, { onDelete: "cascade" }),
   elementCode: text("element_code").notNull(),
   elementType: text("element_type").notNull(),
   baseValue: real("base_value").notNull(),
@@ -13,7 +16,7 @@ export const elementsTable = pgTable("skating_elements", {
   isFallDown: boolean("is_fall_down").notNull().default(false),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (t) => [index("skating_elements_session_id_idx").on(t.sessionId)]);
 
 export const insertElementSchema = createInsertSchema(elementsTable).omit({ id: true, createdAt: true });
 export type InsertElement = z.infer<typeof insertElementSchema>;

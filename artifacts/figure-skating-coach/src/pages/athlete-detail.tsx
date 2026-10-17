@@ -1,5 +1,21 @@
-import { useParams } from "wouter";
-import { useGetAthlete, useGetAthleteProgress, useGetElementStats, useListSessions } from "@workspace/api-client-react";
+import { useState } from "react";
+import { useParams, useLocation } from "wouter";
+import {
+  useGetAthlete,
+  useGetAthleteProgress,
+  useGetElementStats,
+  useListSessions,
+  useUpdateAthlete,
+  useDeleteAthlete,
+  getGetAthleteQueryKey,
+  getGetAthleteProgressQueryKey,
+  getGetElementStatsQueryKey,
+  getListSessionsQueryKey,
+  type Athlete,
+  type AthleteUpdateDiscipline,
+  type AthleteUpdateLevel,
+} from "@workspace/api-client-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -7,8 +23,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { Link } from "wouter";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDelete } from "@/components/confirm-delete";
+import { useToast } from "@/hooks/use-toast";
 
 const formatDiscipline = (d: string) => {
   const map: Record<string, string> = {
@@ -20,14 +43,162 @@ const formatDiscipline = (d: string) => {
   return map[d] || d;
 };
 
+function EditAthleteDialog({ athlete }: { athlete: Athlete }) {
+  const updateAthlete = useUpdateAthlete();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+
+  const [name, setName] = useState(athlete.name);
+  const [discipline, setDiscipline] = useState<AthleteUpdateDiscipline>(athlete.discipline);
+  const [level, setLevel] = useState<AthleteUpdateLevel>(athlete.level);
+  const [nationality, setNationality] = useState(athlete.nationality ?? "");
+  const [dateOfBirth, setDateOfBirth] = useState(athlete.dateOfBirth ?? "");
+  const [personalBestScore, setPersonalBestScore] = useState(athlete.personalBestScore?.toString() ?? "");
+  const [notes, setNotes] = useState(athlete.notes ?? "");
+
+  const handleOpenChange = (next: boolean) => {
+    if (next) {
+      setName(athlete.name);
+      setDiscipline(athlete.discipline);
+      setLevel(athlete.level);
+      setNationality(athlete.nationality ?? "");
+      setDateOfBirth(athlete.dateOfBirth ?? "");
+      setPersonalBestScore(athlete.personalBestScore?.toString() ?? "");
+      setNotes(athlete.notes ?? "");
+    }
+    setOpen(next);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+
+    updateAthlete.mutate({
+      id: athlete.id,
+      data: {
+        name: name.trim(),
+        discipline,
+        level,
+        nationality: nationality.trim() || null,
+        dateOfBirth: dateOfBirth || null,
+        personalBestScore: personalBestScore ? parseFloat(personalBestScore) : null,
+        notes: notes.trim() || null,
+      }
+    }, {
+      onSuccess: () => {
+        toast({ title: "Success", description: "Athlete updated" });
+        queryClient.invalidateQueries();
+        setOpen(false);
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to update athlete", variant: "destructive" });
+      }
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Pencil className="w-4 h-4 mr-2" />
+          Edit
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Athlete</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <div className="space-y-2">
+            <Label htmlFor="edit-name">Full Name</Label>
+            <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} required />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-discipline">Discipline</Label>
+              <Select value={discipline} onValueChange={(v) => setDiscipline(v as AthleteUpdateDiscipline)}>
+                <SelectTrigger id="edit-discipline">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="singles_men">Men's Singles</SelectItem>
+                  <SelectItem value="singles_ladies">Ladies' Singles</SelectItem>
+                  <SelectItem value="pairs">Pairs</SelectItem>
+                  <SelectItem value="ice_dance">Ice Dance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-level">Level</Label>
+              <Select value={level} onValueChange={(v) => setLevel(v as AthleteUpdateLevel)}>
+                <SelectTrigger id="edit-level">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="beginner">Beginner</SelectItem>
+                  <SelectItem value="intermediate">Intermediate</SelectItem>
+                  <SelectItem value="advanced">Advanced</SelectItem>
+                  <SelectItem value="junior">Junior</SelectItem>
+                  <SelectItem value="senior">Senior</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-nationality">Nationality</Label>
+              <Input id="edit-nationality" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="e.g., EGY" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-dob">Date of Birth</Label>
+              <Input id="edit-dob" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-pb">Personal Best</Label>
+              <Input id="edit-pb" type="number" step="0.01" min="0" value={personalBestScore} onChange={(e) => setPersonalBestScore(e.target.value)} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="edit-notes">Notes</Label>
+            <Textarea id="edit-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
+          </div>
+          <div className="pt-4 flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="submit" disabled={updateAthlete.isPending}>
+              {updateAthlete.isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function AthleteDetail() {
   const params = useParams();
   const id = Number(params.id);
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const deleteAthlete = useDeleteAthlete();
 
-  const { data: athlete, isLoading: isLoadingAthlete } = useGetAthlete(id, { query: { enabled: !!id } });
-  const { data: progress, isLoading: isLoadingProgress } = useGetAthleteProgress(id, { query: { enabled: !!id } });
-  const { data: elementStats, isLoading: isLoadingStats } = useGetElementStats(id, { query: { enabled: !!id } });
-  const { data: sessions, isLoading: isLoadingSessions } = useListSessions({ athleteId: id }, { query: { enabled: !!id } });
+  const { data: athlete, isLoading: isLoadingAthlete } = useGetAthlete(id, { query: { enabled: !!id, queryKey: getGetAthleteQueryKey(id) } });
+  const { data: progress, isLoading: isLoadingProgress } = useGetAthleteProgress(id, { query: { enabled: !!id, queryKey: getGetAthleteProgressQueryKey(id) } });
+  const { data: elementStats, isLoading: isLoadingStats } = useGetElementStats(id, { query: { enabled: !!id, queryKey: getGetElementStatsQueryKey(id) } });
+  const { data: sessions, isLoading: isLoadingSessions } = useListSessions({ athleteId: id }, { query: { enabled: !!id, queryKey: getListSessionsQueryKey({ athleteId: id }) } });
+
+  const handleDelete = () => {
+    deleteAthlete.mutate({ id }, {
+      onSuccess: () => {
+        toast({ title: "Athlete deleted" });
+        queryClient.removeQueries({ queryKey: getGetAthleteQueryKey(id) });
+        queryClient.invalidateQueries();
+        setLocation("/athletes");
+      },
+      onError: () => {
+        toast({ title: "Error", description: "Failed to delete athlete", variant: "destructive" });
+      }
+    });
+  };
 
   if (isLoadingAthlete) {
     return <div className="space-y-6"><Skeleton className="h-32 w-full" /></div>;
@@ -56,6 +227,21 @@ export default function AthleteDetail() {
             <span>•</span>
             <span>{formatDiscipline(athlete.discipline)}</span>
           </div>
+        </div>
+        <div className="ml-auto flex gap-2">
+          <EditAthleteDialog athlete={athlete} />
+          <ConfirmDelete
+            trigger={
+              <Button variant="outline" size="sm" className="text-destructive">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            }
+            title={`Delete ${athlete.name}?`}
+            description="This permanently deletes the athlete together with all their sessions and recorded elements. Training programs assigned to them are kept but become unassigned."
+            onConfirm={handleDelete}
+            isPending={deleteAthlete.isPending}
+          />
         </div>
       </div>
 

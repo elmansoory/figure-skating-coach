@@ -5,10 +5,16 @@
  * Figure Skating Coach Pro API
  * OpenAPI spec version: 0.1.0
  */
+import type { SkatingElementUpdateElementType } from "./skatingElementUpdateElementType";
 
 export interface SkatingElementUpdate {
+  /** @minLength 1 */
+  elementCode?: string;
+  elementType?: SkatingElementUpdateElementType;
+  baseValue?: number;
   goe?: number;
   isUnderRotated?: boolean;
   isFallDown?: boolean;
-  notes?: string;
+  /** @nullable */
+  notes?: string | null;
 }
