@@ -26,56 +26,56 @@ export function IceLab() {
     <div className="grid gap-6 lg:grid-cols-3">
       <Card className="lg:col-span-1">
         <CardHeader>
-          <CardTitle>Blade & ice parameters</CardTitle>
-          <CardDescription>Steel on ice is one of the lowest-friction contacts in sport (μ ≈ 0.003–0.01).</CardDescription>
+          <CardTitle>متغيرات الشفرة والجليد</CardTitle>
+          <CardDescription>تلامس الفولاذ مع الجليد من أقل أنواع التلامس احتكاكًا في الرياضة (μ ≈ 0.003–0.01).</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          <ParamSlider id="i-mass" label="Body mass" unit="kg" digits={0} min={35} max={90} step={1} value={mass} onChange={setMass} />
-          <ParamSlider id="i-v" label="Skating speed" unit="m/s" digits={1} min={0.5} max={10} step={0.1} value={speed} onChange={setSpeed} hint={`${fmt(speed * 3.6, 1)} km/h`} />
-          <ParamSlider id="i-mu" label="Friction coefficient μ" digits={3} min={0.002} max={0.03} step={0.001} value={friction} onChange={setFriction} />
-          <ParamSlider id="i-cda" label="Drag area C_d·A" unit="m²" min={0} max={0.8} step={0.01} value={dragArea} onChange={setDragArea} hint="≈0.25 crouched, ≈0.5 upright with arms out" />
-          <ParamSlider id="i-w" label="Blade contact width" unit="mm" digits={1} min={0.5} max={4.5} step={0.1} value={contactWidthMm} onChange={setContactWidthMm} hint="≈4 mm flat on both edges, ≈1 mm on one edge" />
-          <ParamSlider id="i-l" label="Rocker length in contact" unit="cm" digits={1} min={1} max={10} step={0.5} value={contactLengthCm} onChange={setContactLengthCm} />
-          <ParamSlider id="i-t" label="Ice temperature" unit="°C" digits={1} min={-10} max={0} step={0.5} value={iceTemp} onChange={setIceTemp} />
-          <ParamSlider id="i-r" label="Curve radius" unit="m" digits={1} min={1} max={15} step={0.5} value={radius} onChange={setRadius} />
+          <ParamSlider id="i-mass" label="كتلة الجسم" unit="كجم" digits={0} min={35} max={90} step={1} value={mass} onChange={setMass} />
+          <ParamSlider id="i-v" label="سرعة التزلج" unit="م/ث" digits={1} min={0.5} max={10} step={0.1} value={speed} onChange={setSpeed} hint={`${fmt(speed * 3.6, 1)} كم/س`} />
+          <ParamSlider id="i-mu" label="معامل الاحتكاك μ" digits={3} min={0.002} max={0.03} step={0.001} value={friction} onChange={setFriction} />
+          <ParamSlider id="i-cda" label="مساحة المقاومة C_d·A" unit="م²" min={0} max={0.8} step={0.01} value={dragArea} onChange={setDragArea} hint="≈0.25 في وضع الانحناء، ≈0.5 في الوضع القائم مع مدّ الذراعين" />
+          <ParamSlider id="i-w" label="عرض تلامس الشفرة" unit="مم" digits={1} min={0.5} max={4.5} step={0.1} value={contactWidthMm} onChange={setContactWidthMm} hint="≈4 مم على الحافتين معًا، ≈1 مم على حافة واحدة" />
+          <ParamSlider id="i-l" label="طول الجزء المتلامس من انحناء الشفرة" unit="سم" digits={1} min={1} max={10} step={0.5} value={contactLengthCm} onChange={setContactLengthCm} />
+          <ParamSlider id="i-t" label="درجة حرارة الجليد" unit="°م" digits={1} min={-10} max={0} step={0.5} value={iceTemp} onChange={setIceTemp} />
+          <ParamSlider id="i-r" label="نصف قطر المنحنى" unit="م" digits={1} min={1} max={15} step={0.5} value={radius} onChange={setRadius} />
         </CardContent>
       </Card>
 
       <div className="lg:col-span-2 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <Stat label="Glide distance" value={`${fmt(glide.stopDistance, 0)} m`} sub={`friction alone: ${fmt(glide.frictionOnlyDistance, 0)} m`} />
-          <Stat label="Glide time" value={`${fmt(glide.stopTime, 0)} s`} />
-          <Stat label="Blade pressure" value={`${fmt(melt.pressureAtm, 0)} atm`} sub={`${fmt(melt.pressurePa / 1e6, 1)} MPa`} />
+          <Stat label="مسافة الانزلاق" value={`${fmt(glide.stopDistance, 0)} م`} sub={`بالاحتكاك وحده: ${fmt(glide.frictionOnlyDistance, 0)} م`} />
+          <Stat label="زمن الانزلاق" value={`${fmt(glide.stopTime, 0)} ث`} />
+          <Stat label="ضغط الشفرة" value={`${fmt(melt.pressureAtm, 0)} ضغط جوي`} sub={`${fmt(melt.pressurePa / 1e6, 1)} ميغاباسكال`} />
           <Stat
-            label="Melting point under the blade"
-            value={`${fmt(melt.meltingPointC)} °C`}
-            sub={<Badge variant={melt.meltsByPressureAlone ? "default" : "secondary"}>{melt.meltsByPressureAlone ? "Pressure alone melts this ice" : "Pressure alone can't melt this ice"}</Badge>}
+            label="نقطة الانصهار تحت الشفرة"
+            value={`${fmt(melt.meltingPointC)} °م`}
+            sub={<Badge variant={melt.meltsByPressureAlone ? "default" : "secondary"}>{melt.meltsByPressureAlone ? "الضغط وحده يذيب هذا الجليد" : "الضغط وحده لا يذيب هذا الجليد"}</Badge>}
           />
-          <Stat label="Melt film (upper bound)" value={`${fmt(film.filmThicknessM * 1e6, 1)} µm`} sub={`${fmt(film.heatPerMetre, 1)} J of heat per metre`} />
-          <Stat label="Edge lean on the curve" value={`${fmt(lean, 0)}°`} sub="from vertical" />
+          <Stat label="طبقة الماء الذائب (حد أعلى)" value={`${fmt(film.filmThicknessM * 1e6, 1)} ميكرومتر`} sub={`${fmt(film.heatPerMetre, 1)} جول من الحرارة لكل متر`} />
+          <Stat label="ميل الحافة على المنحنى" value={`${fmt(lean, 0)}°`} sub="عن الخط الرأسي" />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <ChartCard title="Glide: speed vs distance" description="Coasting with no push: friction and air drag only.">
+          <ChartCard title="الانزلاق: السرعة مقابل المسافة" description="انزلاق بلا دفع: الاحتكاك ومقاومة الهواء فقط.">
             <LineChart data={glide.samples} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
-              <XAxis dataKey="distance" type="number" domain={[0, "dataMax"]} tickFormatter={(v) => v.toFixed(0)} {...axisProps} unit=" m" />
-              <YAxis {...axisProps} unit=" m/s" />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(2)} m/s`, "Speed"]} labelFormatter={(d: number) => `${d.toFixed(1)} m`} />
+              <XAxis dataKey="distance" type="number" domain={[0, "dataMax"]} tickFormatter={(v) => v.toFixed(0)} {...axisProps} unit=" م" />
+              <YAxis {...axisProps} unit=" م/ث" />
+              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(2)} م/ث`, "السرعة"]} labelFormatter={(d: number) => `${d.toFixed(1)} م`} />
               <Line dataKey="speed" stroke={VIZ.series[0]} strokeWidth={2} dot={false} isAnimationActive={false} />
             </LineChart>
           </ChartCard>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-base">Why is ice slippery?</CardTitle>
+              <CardTitle className="text-base">لماذا الجليد زلق؟</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
               <p>
-                The textbook answer – pressure melting – fails the numbers: the blade lowers the melting point by only {fmt(Math.abs(melt.meltingPointC))} °C here, not enough for rink ice at {fmt(iceTemp, 1)} °C.
+                الإجابة الشائعة في الكتب – الذوبان بالضغط – لا تصمد أمام الأرقام: الشفرة تخفض نقطة الانصهار هنا بمقدار {fmt(Math.abs(melt.meltingPointC))} °م فقط، وهذا لا يكفي لجليد حلبة درجة حرارته {fmt(iceTemp, 1)} °م.
               </p>
               <p>
-                Current explanations combine a thin quasi-liquid layer that exists on ice surfaces even below 0 °C with frictional heating, which can supply at most a film about {fmt(film.filmThicknessM * 1e6, 1)} µm thick if every joule went into melting.
+                التفسيرات الحالية تجمع بين طبقة رقيقة شبه سائلة موجودة على سطح الجليد حتى تحت 0 °م، والتسخين الناتج عن الاحتكاك الذي يمكنه في أقصى حد تكوين طبقة سُمكها نحو {fmt(film.filmThicknessM * 1e6, 1)} ميكرومتر لو ذهب كل جول منه إلى الإذابة.
               </p>
             </CardContent>
           </Card>
@@ -83,16 +83,16 @@ export function IceLab() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Equations and current values</CardTitle>
+            <CardTitle>المعادلات والقيم الحالية</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-2">
-            <Formula name="Kinetic friction" formula="F_f = μ·N = μ·m·g" evaluated={`${fmt(friction, 3)} × ${mass} × 9.81 = ${fmt(friction * mass * 9.81)} N`} />
-            <Formula name="Equation of motion (glide)" formula="m·dv/dt = −μ·m·g − ½ρ·C_dA·v²" />
-            <Formula name="Stopping distance" formula="d = ln(1 + b·v₀²/a) / (2b),  a = μg, b = ρC_dA/2m" evaluated={`d = ${fmt(glide.stopDistance, 1)} m  (friction only v₀²/2μg = ${fmt(glide.frictionOnlyDistance, 1)} m)`} />
-            <Formula name="Contact pressure" formula="p = m·g / (w·l)" evaluated={`${mass} × 9.81 / (${fmt(contactWidthMm / 1000, 4)} × ${fmt(contactLengthCm / 100, 3)}) = ${fmt(melt.pressurePa / 1e6, 2)} MPa`} />
-            <Formula name="Clausius–Clapeyron (ice)" formula="ΔT_m = (dT/dp)·p ≈ −7.4×10⁻⁸ K/Pa · p" evaluated={`ΔT_m = ${fmt(melt.meltingPointC, 2)} K`} />
-            <Formula name="Frictional melt film (upper bound)" formula="h = μ·m·g / (L_f·ρ_w·w)" evaluated={`h = ${fmt(film.filmThicknessM * 1e6, 2)} µm   (L_f = 334 kJ/kg)`} />
-            <Formula name="Edge lean on a curve" formula="tan θ = v² / (g·R)" evaluated={`θ = atan(${fmt(speed, 1)}² / (9.81 × ${fmt(radius, 1)})) = ${fmt(lean, 1)}°`} />
+            <Formula name="الاحتكاك الحركي" formula="F_f = μ·N = μ·m·g" evaluated={`${fmt(friction, 3)} × ${mass} × 9.81 = ${fmt(friction * mass * 9.81)} N`} />
+            <Formula name="معادلة الحركة (الانزلاق)" formula="m·dv/dt = −μ·m·g − ½ρ·C_dA·v²" />
+            <Formula name="مسافة التوقف" formula="d = ln(1 + b·v₀²/a) / (2b),  a = μg, b = ρC_dA/2m" evaluated={`d = ${fmt(glide.stopDistance, 1)} m  (friction only v₀²/2μg = ${fmt(glide.frictionOnlyDistance, 1)} m)`} />
+            <Formula name="ضغط التلامس" formula="p = m·g / (w·l)" evaluated={`${mass} × 9.81 / (${fmt(contactWidthMm / 1000, 4)} × ${fmt(contactLengthCm / 100, 3)}) = ${fmt(melt.pressurePa / 1e6, 2)} MPa`} />
+            <Formula name="معادلة كلاوزيوس–كلابيرون (الجليد)" formula="ΔT_m = (dT/dp)·p ≈ −7.4×10⁻⁸ K/Pa · p" evaluated={`ΔT_m = ${fmt(melt.meltingPointC, 2)} K`} />
+            <Formula name="طبقة الذوبان بالاحتكاك (حد أعلى)" formula="h = μ·m·g / (L_f·ρ_w·w)" evaluated={`h = ${fmt(film.filmThicknessM * 1e6, 2)} µm   (L_f = 334 kJ/kg)`} />
+            <Formula name="ميل الحافة على منحنى" formula="tan θ = v² / (g·R)" evaluated={`θ = atan(${fmt(speed, 1)}² / (9.81 × ${fmt(radius, 1)})) = ${fmt(lean, 1)}°`} />
           </CardContent>
         </Card>
       </div>

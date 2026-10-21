@@ -11,11 +11,11 @@ import { Formula, ParamSlider, Stat, fmt } from "./controls";
 import { ChartCard } from "./jump-lab";
 
 const POSTURE_LABELS: Partial<Record<PostureName, string>> = {
-  uprightEntry: "Upright entry (arms and leg out)",
-  armsOut: "Upright, arms out",
-  scratch: "Scratch (arms and leg tight)",
-  sit: "Sit spin",
-  camel: "Camel spin",
+  uprightEntry: "دخول بوضع قائم (الذراعان والساق ممدودة)",
+  armsOut: "وضع قائم، الذراعان ممدودتان",
+  scratch: "دوران Scratch (الذراعان والساق مضمومتان)",
+  sit: "دوران الجلوس",
+  camel: "دوران الجمل (Camel)",
 };
 const postureOptions = Object.keys(POSTURE_LABELS) as PostureName[];
 
@@ -50,10 +50,10 @@ const initial: State = {
 };
 
 const SEGMENTS = [
-  { key: "trunk", label: "Trunk & head" },
-  { key: "arms", label: "Arms" },
-  { key: "freeLeg", label: "Free leg" },
-  { key: "skatingLeg", label: "Skating leg" },
+  { key: "trunk", label: "الجذع والرأس" },
+  { key: "arms", label: "الذراعان" },
+  { key: "freeLeg", label: "الساق الحرة" },
+  { key: "skatingLeg", label: "ساق الارتكاز" },
 ] as const;
 
 export function SpinLab() {
@@ -83,8 +83,8 @@ export function SpinLab() {
     const entry = momentOfInertia(body, POSTURES[s.entry]);
     const final = momentOfInertia(body, s.final);
     return [
-      { position: "Entry", ...entry },
-      { position: "Final", ...final },
+      { position: "البداية", ...entry },
+      { position: "النهاية", ...final },
     ];
   }, [s]);
 
@@ -95,97 +95,97 @@ export function SpinLab() {
     <div className="grid gap-6 lg:grid-cols-3">
       <Card className="lg:col-span-1">
         <CardHeader>
-          <CardTitle>Spin parameters</CardTitle>
-          <CardDescription>Enter in one position, then change to another.</CardDescription>
+          <CardTitle>متغيرات الدوران المغزلي</CardTitle>
+          <CardDescription>ادخل الدوران بوضع ما ثم انتقل إلى وضع آخر.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Skater</h3>
-            <ParamSlider id="s-mass" label="Body mass" unit="kg" digits={0} min={35} max={90} step={1} value={s.mass} onChange={set("mass")} />
-            <ParamSlider id="s-height" label="Height" unit="m" min={1.4} max={1.95} step={0.01} value={s.height} onChange={set("height")} />
+            <h3 className="text-sm font-semibold">المتزلج</h3>
+            <ParamSlider id="s-mass" label="كتلة الجسم" unit="كجم" digits={0} min={35} max={90} step={1} value={s.mass} onChange={set("mass")} />
+            <ParamSlider id="s-height" label="الطول" unit="م" min={1.4} max={1.95} step={0.01} value={s.height} onChange={set("height")} />
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Positions</h3>
+            <h3 className="text-sm font-semibold">الأوضاع</h3>
             <div className="space-y-2">
-              <Label htmlFor="s-entry">Entry position</Label>
+              <Label htmlFor="s-entry">وضع البداية</Label>
               <Select value={s.entry} onValueChange={(v) => set("entry")(v as PostureName)}>
                 <SelectTrigger id="s-entry"><SelectValue /></SelectTrigger>
                 <SelectContent>{postureOptions.map((p) => <SelectItem key={p} value={p}>{POSTURE_LABELS[p]}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="s-final">Final position</Label>
+              <Label htmlFor="s-final">الوضع النهائي</Label>
               <Select value={s.finalPreset} onValueChange={(v) => setS((prev) => ({ ...prev, finalPreset: v as PostureName, final: POSTURES[v as PostureName] }))}>
                 <SelectTrigger id="s-final"><SelectValue /></SelectTrigger>
                 <SelectContent>{postureOptions.map((p) => <SelectItem key={p} value={p}>{POSTURE_LABELS[p]}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <ParamSlider id="s-arm" label="Final arm extension" min={0} max={1} step={0.05} value={s.final.armExtension} onChange={setFinal("armExtension")} />
-            <ParamSlider id="s-leg" label="Final free-leg angle" unit="°" digits={0} min={0} max={90} step={5} value={s.final.freeLegAngleDeg} onChange={setFinal("freeLegAngleDeg")} />
-            <ParamSlider id="s-lean" label="Final torso lean" unit="°" digits={0} min={0} max={90} step={5} value={s.final.torsoLeanDeg} onChange={setFinal("torsoLeanDeg")} />
+            <ParamSlider id="s-arm" label="امتداد الذراعين في الوضع النهائي" min={0} max={1} step={0.05} value={s.final.armExtension} onChange={setFinal("armExtension")} />
+            <ParamSlider id="s-leg" label="زاوية الساق الحرة في الوضع النهائي" unit="°" digits={0} min={0} max={90} step={5} value={s.final.freeLegAngleDeg} onChange={setFinal("freeLegAngleDeg")} />
+            <ParamSlider id="s-lean" label="ميل الجذع في الوضع النهائي" unit="°" digits={0} min={0} max={90} step={5} value={s.final.torsoLeanDeg} onChange={setFinal("torsoLeanDeg")} />
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Timing</h3>
-            <ParamSlider id="s-w0" label="Entry spin ω" unit="rev/s" min={0.5} max={4} step={0.05} value={s.entryOmega} onChange={set("entryOmega")} />
-            <ParamSlider id="s-hold" label="Time before pulling in" unit="s" digits={1} min={0} max={5} step={0.1} value={s.entryHold} onChange={set("entryHold")} />
-            <ParamSlider id="s-trans" label="Change of position" unit="s" digits={1} min={0.1} max={3} step={0.1} value={s.transitionTime} onChange={set("transitionTime")} />
-            <ParamSlider id="s-dur" label="Simulated time" unit="s" digits={0} min={2} max={20} step={1} value={s.duration} onChange={set("duration")} />
+            <h3 className="text-sm font-semibold">التوقيت</h3>
+            <ParamSlider id="s-w0" label="سرعة الدوران عند الدخول ω" unit="لفة/ث" min={0.5} max={4} step={0.05} value={s.entryOmega} onChange={set("entryOmega")} />
+            <ParamSlider id="s-hold" label="الزمن قبل ضم الذراعين" unit="ث" digits={1} min={0} max={5} step={0.1} value={s.entryHold} onChange={set("entryHold")} />
+            <ParamSlider id="s-trans" label="مدة تغيير الوضع" unit="ث" digits={1} min={0.1} max={3} step={0.1} value={s.transitionTime} onChange={set("transitionTime")} />
+            <ParamSlider id="s-dur" label="زمن المحاكاة" unit="ث" digits={0} min={2} max={20} step={1} value={s.duration} onChange={set("duration")} />
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold">Losses</h3>
-            <ParamSlider id="s-mu" label="Blade–ice friction μ" digits={3} min={0} max={0.03} step={0.001} value={s.friction} onChange={set("friction")} />
-            <ParamSlider id="s-rc" label="Contact lever arm r_c" unit="cm" digits={1} min={0} max={5} step={0.1} value={s.contactRadius * 100} onChange={(v) => set("contactRadius")(v / 100)} />
+            <h3 className="text-sm font-semibold">الفواقد</h3>
+            <ParamSlider id="s-mu" label="معامل احتكاك الشفرة بالجليد μ" digits={3} min={0} max={0.03} step={0.001} value={s.friction} onChange={set("friction")} />
+            <ParamSlider id="s-rc" label="ذراع عزم التلامس r_c" unit="سم" digits={1} min={0} max={5} step={0.1} value={s.contactRadius * 100} onChange={(v) => set("contactRadius")(v / 100)} />
             <div className="flex items-center justify-between">
-              <Label htmlFor="s-drag">Air drag on limbs</Label>
+              <Label htmlFor="s-drag">مقاومة الهواء على الأطراف</Label>
               <Switch id="s-drag" checked={s.airDrag} onCheckedChange={set("airDrag")} />
             </div>
           </div>
 
-          <Button variant="outline" className="w-full" onClick={() => setS(initial)}>Reset</Button>
+          <Button variant="outline" className="w-full" onClick={() => setS(initial)}>إعادة الضبط</Button>
         </CardContent>
       </Card>
 
       <div className="lg:col-span-2 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          <Stat label="Peak speed" value={`${fmt(result.peakOmegaRevPerSec)} rev/s`} sub={`${fmt(result.peakRpm, 0)} rpm`} />
-          <Stat label="Speed-up if lossless" value={`× ${fmt(result.idealSpeedUp)}`} sub="= I_entry / I_final" />
-          <Stat label="Revolutions" value={fmt(result.totalRevolutions, 1)} sub={result.stopTime != null ? `stops at ${fmt(result.stopTime, 1)} s` : `still ${fmt(endOmega)} rev/s at ${s.duration} s`} />
-          <Stat label="Moment of inertia" value={`${fmt(result.inertiaEntry)} → ${fmt(result.inertiaFinal)}`} sub="kg·m²" />
-          <Stat label="Work to pull in" value={`${fmt(result.pullInWork, 0)} J`} sub="muscle work, ignoring losses" />
-          <Stat label="Friction torque" value={`${fmt(result.frictionTorque, 3)} N·m`} />
+          <Stat label="أقصى سرعة" value={`${fmt(result.peakOmegaRevPerSec)} لفة/ث`} sub={`${fmt(result.peakRpm, 0)} لفة/دقيقة`} />
+          <Stat label="التسارع دون فواقد" value={`× ${fmt(result.idealSpeedUp)}`} sub="= I_entry / I_final" />
+          <Stat label="عدد اللفات" value={fmt(result.totalRevolutions, 1)} sub={result.stopTime != null ? `يتوقف عند ${fmt(result.stopTime, 1)} ث` : `ما زال ${fmt(endOmega)} لفة/ث عند ${s.duration} ث`} />
+          <Stat label="عزم القصور الذاتي" value={<span dir="ltr">{`${fmt(result.inertiaEntry)} → ${fmt(result.inertiaFinal)}`}</span>} sub="كجم·م²" />
+          <Stat label="شغل ضم الذراعين" value={`${fmt(result.pullInWork, 0)} جول`} sub="شغل العضلات، بإهمال الفواقد" />
+          <Stat label="عزم الاحتكاك" value={`${fmt(result.frictionTorque, 3)} نيوتن·م`} />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <ChartCard title="Rotation speed" description="Pulling in at constant L speeds the spin up; friction and drag then slow it.">
+          <ChartCard title="سرعة الدوران" description="ضم الأطراف مع ثبات L يسرّع الدوران، ثم يبطئه الاحتكاك ومقاومة الهواء.">
             <LineChart data={series} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
-              <XAxis dataKey="t" type="number" domain={[0, "dataMax"]} tickFormatter={(v) => v.toFixed(0)} {...axisProps} unit=" s" />
+              <XAxis dataKey="t" type="number" domain={[0, "dataMax"]} tickFormatter={(v) => v.toFixed(0)} {...axisProps} unit=" ث" />
               <YAxis {...axisProps} />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(2)} rev/s`, "ω"]} labelFormatter={(t: number) => `t = ${t.toFixed(2)} s`} />
+              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(2)} لفة/ث`, "ω"]} labelFormatter={(t: number) => `t = ${t.toFixed(2)} ث`} />
               <Line dataKey="omega" stroke={VIZ.series[0]} strokeWidth={2} dot={false} isAnimationActive={false} />
             </LineChart>
           </ChartCard>
 
-          <ChartCard title="Angular momentum" description="Constant except for the external torques: blade friction and air drag.">
+          <ChartCard title="الزخم الزاوي" description="ثابت إلا بتأثير عزوم الدوران الخارجية: احتكاك الشفرة ومقاومة الهواء.">
             <LineChart data={series} margin={{ top: 8, right: 12, bottom: 4, left: 0 }}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
-              <XAxis dataKey="t" type="number" domain={[0, "dataMax"]} tickFormatter={(v) => v.toFixed(0)} {...axisProps} unit=" s" />
+              <XAxis dataKey="t" type="number" domain={[0, "dataMax"]} tickFormatter={(v) => v.toFixed(0)} {...axisProps} unit=" ث" />
               <YAxis {...axisProps} domain={[0, "auto"]} />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(2)} kg·m²/s`, "L"]} labelFormatter={(t: number) => `t = ${t.toFixed(2)} s`} />
+              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(2)} كجم·م²/ث`, "L"]} labelFormatter={(t: number) => `t = ${t.toFixed(2)} ث`} />
               <Line dataKey="L" stroke={VIZ.series[0]} strokeWidth={2} dot={false} isAnimationActive={false} />
             </LineChart>
           </ChartCard>
         </div>
 
-        <ChartCard title="Where the inertia comes from" description="Contribution of each body segment, I = Σ m·k², in kg·m².">
+        <ChartCard title="من أين يأتي عزم القصور الذاتي" description="مساهمة كل جزء من الجسم، I = Σ m·k²، بوحدة كجم·م².">
           <BarChart data={inertiaBars} layout="vertical" margin={{ top: 8, right: 12, bottom: 4, left: 8 }} barCategoryGap={12}>
             <CartesianGrid stroke={VIZ.grid} horizontal={false} />
             <XAxis type="number" {...axisProps} />
-            <YAxis type="category" dataKey="position" {...axisProps} width={50} />
-            <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [`${v.toFixed(2)} kg·m²`, name]} cursor={{ fill: "hsl(var(--muted) / 0.4)" }} />
+            <YAxis type="category" dataKey="position" {...axisProps} width={60} />
+            <Tooltip {...tooltipStyle} formatter={(v: number, name: string) => [`${v.toFixed(2)} كجم·م²`, name]} cursor={{ fill: "hsl(var(--muted) / 0.4)" }} />
             <Legend wrapperStyle={{ fontSize: 12 }} formatter={(value) => <span className="text-foreground">{value}</span>} />
             {SEGMENTS.map((seg, i) => (
               <Bar key={seg.key} dataKey={seg.key} name={seg.label} stackId="I" fill={VIZ.series[i]} stroke="hsl(var(--card))" strokeWidth={2} isAnimationActive={false} />
@@ -195,15 +195,15 @@ export function SpinLab() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Equations and current values</CardTitle>
+            <CardTitle>المعادلات والقيم الحالية</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 md:grid-cols-2">
-            <Formula name="Conservation of angular momentum" formula="I_entry·ω_entry = I_final·ω_final" evaluated={`${fmt(result.inertiaEntry)} × ${fmt(s.entryOmega)} = ${fmt(result.inertiaFinal)} × ω  →  ω = ${fmt(s.entryOmega * result.idealSpeedUp)} rev/s (lossless)`} />
-            <Formula name="Speed-up ratio" formula="ω_final / ω_entry = I_entry / I_final" evaluated={`${fmt(result.inertiaEntry)} / ${fmt(result.inertiaFinal)} = ${fmt(result.idealSpeedUp)}`} />
-            <Formula name="Blade friction torque" formula="τ_f = μ·m·g·r_c" evaluated={`${fmt(s.friction, 3)} × ${s.mass} × 9.81 × ${fmt(s.contactRadius, 3)} = ${fmt(result.frictionTorque, 3)} N·m`} />
-            <Formula name="Air drag torque" formula="τ_d = c·ω²,  c = ½ρC_d·Σ w·(r₂⁴ − r₁⁴)/4" note="Grows with the fourth power of how far the limbs reach, which is why open positions slow down quickly." />
-            <Formula name="Spin decay" formula="dL/dt = −τ_f − c·ω²" />
-            <Formula name="Work done pulling in" formula="W = L²/2 · (1/I_final − 1/I_entry)" evaluated={`W = ${fmt(result.pullInWork, 0)} J`} note="Kinetic energy is not conserved when the skater pulls in – the muscles supply it." />
+            <Formula name="حفظ الزخم الزاوي" formula="I_entry·ω_entry = I_final·ω_final" evaluated={`${fmt(result.inertiaEntry)} × ${fmt(s.entryOmega)} = ${fmt(result.inertiaFinal)} × ω  →  ω = ${fmt(s.entryOmega * result.idealSpeedUp)} rev/s (دون فواقد)`} />
+            <Formula name="نسبة التسارع" formula="ω_final / ω_entry = I_entry / I_final" evaluated={`${fmt(result.inertiaEntry)} / ${fmt(result.inertiaFinal)} = ${fmt(result.idealSpeedUp)}`} />
+            <Formula name="عزم احتكاك الشفرة" formula="τ_f = μ·m·g·r_c" evaluated={`${fmt(s.friction, 3)} × ${s.mass} × 9.81 × ${fmt(s.contactRadius, 3)} = ${fmt(result.frictionTorque, 3)} N·m`} />
+            <Formula name="عزم مقاومة الهواء" formula="τ_d = c·ω²,  c = ½ρC_d·Σ w·(r₂⁴ − r₁⁴)/4" note="يزداد مع القوة الرابعة لمدى امتداد الأطراف، ولهذا تتباطأ الأوضاع المفتوحة بسرعة." />
+            <Formula name="تباطؤ الدوران" formula="dL/dt = −τ_f − c·ω²" />
+            <Formula name="الشغل المبذول في ضم الأطراف" formula="W = L²/2 · (1/I_final − 1/I_entry)" evaluated={`W = ${fmt(result.pullInWork, 0)} J`} note="الطاقة الحركية لا تُحفظ عندما يضم المتزلج أطرافه – فالعضلات هي التي تمدّها." />
           </CardContent>
         </Card>
       </div>

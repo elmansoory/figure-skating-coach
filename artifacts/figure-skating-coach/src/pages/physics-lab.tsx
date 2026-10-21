@@ -7,19 +7,19 @@ export default function PhysicsLab() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Physics Lab</h1>
+        <h1 className="text-3xl font-bold tracking-tight">مختبر الفيزياء</h1>
         <p className="text-muted-foreground mt-1 max-w-3xl">
-          A simplified biomechanical model of jumps and spins: projectile motion under gravity, a segmental model of
-          the moment of inertia, conservation of angular momentum in the air, and blade–ice friction. Results are
-          estimates for teaching and what-if analysis, not measurements of a specific skater.
+          نموذج ميكانيكا حيوية مبسّط للقفزات والدورانات: حركة المقذوفات تحت تأثير الجاذبية، ونموذج مجزّأ لعزم
+          القصور الذاتي لأجزاء الجسم، وحفظ الزخم الزاوي في الهواء، واحتكاك الشفرة بالجليد. النتائج تقديرات
+          للتعليم وتحليل سيناريوهات «ماذا لو»، وليست قياسات لمتزلج بعينه.
         </p>
       </div>
 
       <Tabs defaultValue="jump">
         <TabsList>
-          <TabsTrigger value="jump">Jumps</TabsTrigger>
-          <TabsTrigger value="spin">Spins</TabsTrigger>
-          <TabsTrigger value="ice">Blade & ice</TabsTrigger>
+          <TabsTrigger value="jump">القفزات</TabsTrigger>
+          <TabsTrigger value="spin">الدورانات</TabsTrigger>
+          <TabsTrigger value="ice">الشفرة والجليد</TabsTrigger>
         </TabsList>
         <TabsContent value="jump" className="pt-4"><JumpLab /></TabsContent>
         <TabsContent value="spin" className="pt-4"><SpinLab /></TabsContent>
