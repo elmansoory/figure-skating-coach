@@ -104,7 +104,7 @@
   --sidebar-border: 220 30% 15%;
   --sidebar-ring: 210 100% 40%;
 
-  --app-font-sans: 'Inter', sans-serif;
+  --app-font-sans: 'Inter', 'IBM Plex Sans Arabic', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
 
