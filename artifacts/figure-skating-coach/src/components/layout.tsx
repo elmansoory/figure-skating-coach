@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Activity, Users, ClipboardList, BookOpen, LayoutDashboard, Settings } from "lucide-react";
+import { Activity, Users, ClipboardList, BookOpen, LayoutDashboard, Settings, Atom, BarChart3 } from "lucide-react";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -11,6 +11,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/sessions", icon: Activity, label: "Sessions" },
     { href: "/training", icon: ClipboardList, label: "Training" },
     { href: "/rules", icon: BookOpen, label: "ISU Rules" },
+    { href: "/physics", icon: Atom, label: "Physics Lab" },
+    { href: "/analytics", icon: BarChart3, label: "Olympic Analytics" },
   ];
 
   return (

@@ -47,3 +47,6 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# cleanskate parquet cache used by scripts/data
+.cache/
