@@ -26,8 +26,8 @@ export function VizCard({ title, description, height = 320, chart, table, classN
             {description && <CardDescription className="mt-1">{description}</CardDescription>}
           </div>
           <Button variant="ghost" size="sm" onClick={() => setShowTable((v) => !v)} aria-pressed={showTable}>
-            {showTable ? <BarChart3 className="w-4 h-4 mr-1" /> : <Table2 className="w-4 h-4 mr-1" />}
-            {showTable ? "Chart" : "Table"}
+            {showTable ? <BarChart3 className="w-4 h-4 me-1" /> : <Table2 className="w-4 h-4 me-1" />}
+            {showTable ? "رسم" : "جدول"}
           </Button>
         </div>
       </CardHeader>
@@ -35,7 +35,7 @@ export function VizCard({ title, description, height = 320, chart, table, classN
         {showTable ? (
           <div className="max-h-[420px] overflow-auto">{table}</div>
         ) : (
-          <div style={{ height }}>
+          <div style={{ height }} dir="ltr">
             <ResponsiveContainer width="100%" height="100%">{chart}</ResponsiveContainer>
           </div>
         )}
@@ -50,7 +50,7 @@ export function DataTable({ head, rows }: { head: string[]; rows: ReactNode[][] 
       <thead className="sticky top-0 bg-card">
         <tr className="border-b text-muted-foreground">
           {head.map((h, i) => (
-            <th key={h} className={`py-2 pr-3 font-medium ${i === 0 ? "text-left" : "text-right"}`}>{h}</th>
+            <th key={h} className={`py-2 pe-3 font-medium ${i === 0 ? "text-start" : "text-end"}`}>{h}</th>
           ))}
         </tr>
       </thead>
@@ -58,7 +58,7 @@ export function DataTable({ head, rows }: { head: string[]; rows: ReactNode[][] 
         {rows.map((r, i) => (
           <tr key={i}>
             {r.map((c, j) => (
-              <td key={j} className={`py-1.5 pr-3 ${j === 0 ? "text-left" : "text-right font-mono tabular-nums"}`}>{c}</td>
+              <td key={j} className={`py-1.5 pe-3 ${j === 0 ? "text-start" : "text-end font-mono tabular-nums"}`}>{c}</td>
             ))}
           </tr>
         ))}
@@ -73,7 +73,7 @@ export function RateRow({ label, rate, ci, n, max = 1 }: { label: string; rate: 
   return (
     <div className="grid grid-cols-[minmax(120px,1fr)_3fr_auto] items-center gap-3 py-1.5">
       <div className="text-sm text-foreground">{label}</div>
-      <div className="relative h-5" aria-hidden>
+      <div className="relative h-5" aria-hidden dir="ltr">
         <div className="absolute inset-y-1.5 left-0 right-0 rounded" style={{ background: VIZ.grid }} />
         {rate != null && (
           <div className="absolute inset-y-1 left-0 rounded-r" style={{ width: pctOf(rate), background: VIZ.series[0], borderRadius: "0 4px 4px 0" }} />
@@ -86,9 +86,9 @@ export function RateRow({ label, rate, ci, n, max = 1 }: { label: string; rate: 
           </div>
         )}
       </div>
-      <div className="text-right text-sm">
+      <div className="text-end text-sm">
         <span className="font-semibold tabular-nums">{rate == null ? "–" : `${(rate * 100).toFixed(1)}%`}</span>
-        <span className="ml-2 text-xs text-muted-foreground tabular-nums">
+        <span className="ms-2 text-xs text-muted-foreground tabular-nums" dir="ltr">
           {ci ? `[${(ci[0] * 100).toFixed(1)}–${(ci[1] * 100).toFixed(1)}] ` : ""}n={n.toLocaleString()}
         </span>
       </div>

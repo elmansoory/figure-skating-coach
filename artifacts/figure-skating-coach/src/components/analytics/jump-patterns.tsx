@@ -9,6 +9,20 @@ import { DataTable, RateRow, VizCard } from "./shared";
 const legendText = (value: string) => <span className="text-foreground">{value}</span>;
 const J = analytics.jumps;
 
+// Group labels come from the generated dataset in English
+const GROUP_LABELS: Record<string, string> = {
+  "Short program": "البرنامج القصير",
+  "Free skate": "البرنامج الحر",
+  "First half (FS)": "النصف الأول (البرنامج الحر)",
+  "Second half (FS)": "النصف الثاني (البرنامج الحر)",
+  "Other senior events": "بطولات الكبار الأخرى",
+  Olympics: "الألعاب الأولمبية",
+  "Solo jump": "قفزة منفردة",
+  Combination: "مجموعة قفزات",
+  Sequence: "تسلسل قفزات",
+};
+const DISC = { Men: "الرجال", Women: "السيدات" } as const;
+
 export function JumpPatterns() {
   const [discipline, setDiscipline] = useState<"Men" | "Women">("Men");
 
@@ -27,7 +41,7 @@ export function JumpPatterns() {
   // The highest-value jump with a solid sample size
   const focus = types.filter((t) => t.n >= 100).sort((a, b) => b.meanBaseValue - a.meanBaseValue)[0];
   const trends = J.trends.filter((t) => t.discipline === discipline);
-  const hardLabel = discipline === "Men" ? "quads" : "quads and triple Axels";
+  const hardLabel = discipline === "Men" ? "القفزات الرباعية" : "القفزات الرباعية والأكسل الثلاثي";
   const half = J.patterns.half;
   const halfDrop = half[0].cleanRate != null && half[1].cleanRate != null ? (half[0].cleanRate - half[1].cleanRate) * 100 : null;
   const pos = J.patterns.position;
@@ -40,41 +54,41 @@ export function JumpPatterns() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Successful vs failed jumps</h2>
+          <h2 className="text-2xl font-bold tracking-tight">القفزات الناجحة والفاشلة</h2>
           <p className="text-muted-foreground mt-1 max-w-3xl">
-            {J.scope.jumpElements.toLocaleString()} jump elements from {J.scope.events} senior international events, seasons {J.scope.seasons[0]} to {J.scope.seasons[1]}.
-            A jump counts as <strong className="text-foreground">clean</strong> when it has no protocol call (q, &lt;, &lt;&lt;, e, !, *) and no fall. Brackets show 95% Wilson confidence intervals.
+            {J.scope.jumpElements.toLocaleString("en")} عنصر قفز من {J.scope.events} بطولة دولية للكبار، من موسم {J.scope.seasons[0]} حتى {J.scope.seasons[1]}.
+            تُعد القفزة <strong className="text-foreground">نظيفة</strong> إذا لم يكن عليها أي نداء في البروتوكول (<span dir="ltr">q, &lt;, &lt;&lt;, e, !, *</span>) ولا سقوط. الأقواس تعرض فترة الثقة 95% (طريقة ويلسون).
           </p>
         </div>
-        <ToggleGroup type="single" value={discipline} onValueChange={(v) => v && setDiscipline(v as "Men" | "Women")} variant="outline" aria-label="Discipline">
-          <ToggleGroupItem value="Men">Men</ToggleGroupItem>
-          <ToggleGroupItem value="Women">Women</ToggleGroupItem>
+        <ToggleGroup type="single" value={discipline} onValueChange={(v) => v && setDiscipline(v as "Men" | "Women")} variant="outline" aria-label="التخصص">
+          <ToggleGroupItem value="Men">الرجال</ToggleGroupItem>
+          <ToggleGroupItem value="Women">السيدات</ToggleGroupItem>
         </ToggleGroup>
       </div>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Key patterns</CardTitle>
+          <CardTitle className="text-base">أبرز الأنماط</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-3 text-sm">
           <div className="rounded-md border border-border p-3">
-            <div className="font-semibold">Second-half jumps are less often clean</div>
+            <div className="font-semibold">قفزات النصف الثاني أقل نظافة</div>
             <p className="text-muted-foreground mt-1">
-              In free skates, triples and quads with the second-half bonus are clean {pct(half[1].cleanRate, 1)} of the time vs {pct(half[0].cleanRate, 1)} in the first half
-              {halfDrop != null ? ` – ${halfDrop.toFixed(1)} points lower${halfSeparated ? ", with non-overlapping confidence intervals" : ""}.` : "."} Fatigue is a likely factor, but skaters also choose which jumps to place there.
+              في البرامج الحرة، القفزات الثلاثية والرباعية التي تحصل على مكافأة النصف الثاني نظيفة بنسبة {pct(half[1].cleanRate, 1)} مقابل {pct(half[0].cleanRate, 1)} في النصف الأول
+              {halfDrop != null ? ` – أقل بـ ${halfDrop.toFixed(1)} نقطة مئوية${halfSeparated ? "، وفترات الثقة لا تتداخل" : ""}.` : "."} الإرهاق عامل محتمل، لكن المتزلجين يختارون أيضًا القفزات التي يضعونها هناك.
             </p>
           </div>
           <div className="rounded-md border border-border p-3">
-            <div className="font-semibold">How the {focus?.jump} fails</div>
+            <div className="font-semibold">كيف تفشل قفزة <span dir="ltr">{focus?.jump}</span></div>
             <p className="text-muted-foreground mt-1">
               {focus &&
-                `The highest-value ${discipline.toLowerCase()}'s jump with 100+ solo attempts: ${pct(focus.cleanRate)} clean, ${pct(focus.fallRate)} falls, ${pct(focus.quarterRate + focus.underRate + focus.downgradeRate)} rotation calls (q, <, <<)${focus.wrongEdgeRate != null ? `, ${pct(focus.wrongEdgeRate + (focus.edgeAttentionRate ?? 0))} edge calls` : ""}. A jump can have both a fall and a call.`}
+                `أعلى قفزة قيمةً لدى ${DISC[discipline]} بأكثر من 100 محاولة منفردة: ${pct(focus.cleanRate)} نظيفة، ${pct(focus.fallRate)} سقوط، ${pct(focus.quarterRate + focus.underRate + focus.downgradeRate)} نداءات دوران (q, <, <<)${focus.wrongEdgeRate != null ? `، ${pct(focus.wrongEdgeRate + (focus.edgeAttentionRate ?? 0))} نداءات حافة` : ""}. قد تجتمع في القفزة الواحدة سقطة ونداء.`}
             </p>
           </div>
           <div className="rounded-md border border-border p-3">
-            <div className="font-semibold">Where in the program matters</div>
+            <div className="font-semibold">موضع العنصر في البرنامج مهم</div>
             <p className="text-muted-foreground mt-1">
-              The clean rate peaks at element {bestPos.position} ({pct(bestPos.cleanRate)}) and drops to {pct(worstAfter.cleanRate)} at element {worstAfter.position}. Olympic jumps were clean {pct(J.patterns.olympics[1].cleanRate)} of the time vs {pct(J.patterns.olympics[0].cleanRate)} elsewhere – most likely because only the strongest skaters qualify.
+              تبلغ نسبة النظافة ذروتها عند العنصر {bestPos.position} ({pct(bestPos.cleanRate)}) وتنخفض إلى {pct(worstAfter.cleanRate)} عند العنصر {worstAfter.position}. كانت القفزات في الأولمبياد نظيفة بنسبة {pct(J.patterns.olympics[1].cleanRate)} مقابل {pct(J.patterns.olympics[0].cleanRate)} في غيرها – غالبًا لأن الأقوى فقط هم من يتأهلون.
             </p>
           </div>
         </CardContent>
@@ -82,8 +96,8 @@ export function JumpPatterns() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <VizCard
-          title={`Clean rate by jump – ${discipline} (solo jumps)`}
-          description="Share of solo triples and quads with no call and no fall. Whiskers show 95% confidence intervals."
+          title={`نسبة النظافة حسب القفزة – ${DISC[discipline]} (قفزات منفردة)`}
+          description="نسبة القفزات الثلاثية والرباعية المنفردة بلا نداء ولا سقوط. الخطوط الأفقية تمثل فترة الثقة 95%."
           height={Math.max(260, types.length * 30 + 50)}
           chart={
             <BarChart data={types} layout="vertical" margin={{ top: 4, right: 24, bottom: 4, left: 0 }} barCategoryGap={6}>
@@ -93,10 +107,10 @@ export function JumpPatterns() {
               <Tooltip
                 {...tooltipStyle}
                 cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
-                formatter={(v: number) => [`${v.toFixed(1)}%`, "Clean"]}
+                formatter={(v: number) => [`${v.toFixed(1)}%`, "نظيفة"]}
                 labelFormatter={(label: string, payload) => {
                   const t = payload?.[0]?.payload as (typeof types)[number] | undefined;
-                  return t ? `${label} – n=${t.n}, falls ${pct(t.fallRate)}, mean GOE ${t.meanGoe?.toFixed(2)}` : label;
+                  return t ? `${label} – n=${t.n}، سقوط ${pct(t.fallRate)}، متوسط GOE ${t.meanGoe?.toFixed(2)}` : label;
                 }}
               />
               <Bar dataKey="clean" fill={VIZ.series[0]} radius={[0, 4, 4, 0]} isAnimationActive={false}>
@@ -106,7 +120,7 @@ export function JumpPatterns() {
           }
           table={
             <DataTable
-              head={["Jump", "n", "Clean", "Fall", "q", "<", "<<", "e / !", "GOE", "GOE clean"]}
+              head={["القفزة", "n", "نظيفة", "سقوط", "q", "<", "<<", "e / !", "GOE", "GOE للنظيفة"]}
               rows={types.map((t) => [
                 t.jump,
                 t.n,
@@ -125,19 +139,19 @@ export function JumpPatterns() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">What changes the odds? (men and women, triples and quads)</CardTitle>
-            <CardDescription>Clean rate of jump elements in each situation.</CardDescription>
+            <CardTitle className="text-base">ما الذي يغيّر الفرص؟ (رجال وسيدات، ثلاثية ورباعية)</CardTitle>
+            <CardDescription>نسبة نظافة عناصر القفز في كل حالة.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
-              { title: "Segment", rows: J.patterns.segment },
-              { title: "Position in the free skate", rows: J.patterns.half },
-              { title: "Element type", rows: J.patterns.elementType },
-              { title: "Event", rows: J.patterns.olympics },
+              { title: "البرنامج", rows: J.patterns.segment },
+              { title: "الموضع في البرنامج الحر", rows: J.patterns.half },
+              { title: "نوع العنصر", rows: J.patterns.elementType },
+              { title: "البطولة", rows: J.patterns.olympics },
             ].map((g) => (
               <div key={g.title}>
                 <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{g.title}</div>
-                {g.rows.map((r) => <RateRow key={r.group} label={r.group} rate={r.cleanRate} ci={r.cleanCi} n={r.n} />)}
+                {g.rows.map((r) => <RateRow key={r.group} label={GROUP_LABELS[r.group] ?? r.group} rate={r.cleanRate} ci={r.cleanCi} n={r.n} />)}
               </div>
             ))}
           </CardContent>
@@ -146,23 +160,23 @@ export function JumpPatterns() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <VizCard
-          title="Clean rate by element order in the free skate"
-          description="All senior singles free skates; element numbers include spins and steps, which is why jumps rarely sit at 5 and 10."
+          title="نسبة النظافة حسب ترتيب العنصر في البرنامج الحر"
+          description="كل البرامج الحرة لفردي الكبار؛ ترقيم العناصر يشمل الدورانات والخطوات، لذلك نادرًا ما تأتي القفزات في الموضعين 5 و10."
           chart={
             <LineChart data={pos.map((p) => ({ ...p, clean: (p.cleanRate ?? 0) * 100 }))} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
               <XAxis dataKey="position" {...axisProps} />
               <YAxis {...axisProps} domain={[50, 90]} unit="%" />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "Clean"]} labelFormatter={(p: number) => `Element ${p}`} />
+              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "نظيفة"]} labelFormatter={(p: number) => `العنصر ${p}`} />
               <Line dataKey="clean" stroke={VIZ.series[0]} strokeWidth={2} dot={{ r: 4, fill: VIZ.series[0], stroke: "hsl(var(--card))", strokeWidth: 2 }} isAnimationActive={false} />
             </LineChart>
           }
-          table={<DataTable head={["Element", "n", "Clean", "Falls"]} rows={pos.map((p) => [p.position, p.n, pct(p.cleanRate, 1), pct(p.fallRate, 1)])} />}
+          table={<DataTable head={["العنصر", "n", "نظيفة", "سقوط"]} rows={pos.map((p) => [p.position, p.n, pct(p.cleanRate, 1), pct(p.fallRate, 1)])} />}
         />
 
         <VizCard
-          title="GOE of clean and failed jumps"
-          description="Triples and quads. A clean jump can still get negative GOE (e.g. a poor landing), and a call almost always pushes GOE below zero."
+          title="درجة التنفيذ (GOE) للقفزات النظيفة والفاشلة"
+          description="القفزات الثلاثية والرباعية. قد تحصل القفزة النظيفة على GOE سالبة (مثل هبوط ضعيف)، والنداء يدفع GOE تحت الصفر في أغلب الأحيان."
           chart={
             <BarChart data={hist} margin={{ top: 8, right: 16, bottom: 4, left: 0 }} barCategoryGap={1}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
@@ -170,64 +184,64 @@ export function JumpPatterns() {
               <YAxis {...axisProps} />
               <Tooltip {...tooltipStyle} cursor={{ fill: "hsl(var(--muted) / 0.4)" }} labelFormatter={(l: string, payload) => {
                 const h = payload?.[0]?.payload as (typeof hist)[number] | undefined;
-                return h ? `GOE ${h.from} to ${h.to}` : l;
+                return h ? `GOE من ${h.from} إلى ${h.to}` : l;
               }} />
               <Legend wrapperStyle={{ fontSize: 12 }} formatter={legendText} />
-              <Bar dataKey="clean" name="Clean" stackId="g" fill={VIZ.good} stroke="hsl(var(--card))" strokeWidth={1} isAnimationActive={false} />
-              <Bar dataKey="notClean" name="Call or fall" stackId="g" fill={VIZ.critical} stroke="hsl(var(--card))" strokeWidth={1} isAnimationActive={false} />
+              <Bar dataKey="clean" name="نظيفة" stackId="g" fill={VIZ.good} stroke="hsl(var(--card))" strokeWidth={1} isAnimationActive={false} />
+              <Bar dataKey="notClean" name="نداء أو سقوط" stackId="g" fill={VIZ.critical} stroke="hsl(var(--card))" strokeWidth={1} isAnimationActive={false} />
             </BarChart>
           }
-          table={<DataTable head={["GOE", "Clean", "Call or fall"]} rows={hist.map((h) => [`${h.from} to ${h.to}`, h.clean, h.notClean])} />}
+          table={<DataTable head={["GOE", "نظيفة", "نداء أو سقوط"]} rows={hist.map((h) => [<span dir="ltr">{h.from} → {h.to}</span>, h.clean, h.notClean])} />}
         />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <VizCard
-          title={`Attempts of ${hardLabel} per free skate`}
-          description={`${discipline}, by season. 2020/21 had few events because of the pandemic.`}
+          title={`محاولات ${hardLabel} لكل برنامج حر`}
+          description={`${DISC[discipline]}، حسب الموسم. أُقيمت بطولات قليلة في موسم 2020/21 بسبب الجائحة.`}
           chart={
             <BarChart data={trends} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
               <XAxis dataKey="season" {...axisProps} />
               <YAxis {...axisProps} />
-              <Tooltip {...tooltipStyle} cursor={{ fill: "hsl(var(--muted) / 0.4)" }} formatter={(v: number) => [v.toFixed(2), "Attempts per program"]} labelFormatter={(s: string, payload) => {
+              <Tooltip {...tooltipStyle} cursor={{ fill: "hsl(var(--muted) / 0.4)" }} formatter={(v: number) => [v.toFixed(2), "محاولات لكل برنامج"]} labelFormatter={(s: string, payload) => {
                 const t = payload?.[0]?.payload as (typeof trends)[number] | undefined;
-                return t ? `${s} – ${t.performances} free skates` : s;
+                return t ? `${s} – ${t.performances} برنامجًا حرًا` : s;
               }} />
               <Bar dataKey="attemptsPerProgram" fill={VIZ.series[0]} radius={[4, 4, 0, 0]} isAnimationActive={false} />
             </BarChart>
           }
-          table={<DataTable head={["Season", "Free skates", "Attempts / program", "Attempts", "Clean"]} rows={trends.map((t) => [t.season, t.performances, t.attemptsPerProgram?.toFixed(2), t.n, pct(t.cleanRate, 1)])} />}
+          table={<DataTable head={["الموسم", "البرامج الحرة", "محاولات / برنامج", "المحاولات", "نظيفة"]} rows={trends.map((t) => [t.season, t.performances, t.attemptsPerProgram?.toFixed(2), t.n, pct(t.cleanRate, 1)])} />}
         />
 
         <VizCard
-          title={`Clean rate of ${hardLabel} by season`}
-          description={`${discipline}. Seasons with few attempts swing widely – check n in the table.`}
+          title={`نسبة نظافة ${hardLabel} حسب الموسم`}
+          description={`${DISC[discipline]}. المواسم ذات المحاولات القليلة تتذبذب كثيرًا – راجع n في الجدول.`}
           chart={
             <LineChart data={trends.map((t) => ({ ...t, clean: (t.cleanRate ?? 0) * 100 }))} margin={{ top: 8, right: 16, bottom: 4, left: 0 }}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
               <XAxis dataKey="season" {...axisProps} />
               <YAxis {...axisProps} domain={[0, 100]} unit="%" />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "Clean"]} labelFormatter={(s: string, payload) => {
+              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v.toFixed(1)}%`, "نظيفة"]} labelFormatter={(s: string, payload) => {
                 const t = payload?.[0]?.payload as (typeof trends)[number] | undefined;
                 return t ? `${s} – n=${t.n}` : s;
               }} />
               <Line dataKey="clean" stroke={VIZ.series[0]} strokeWidth={2} dot={{ r: 4, fill: VIZ.series[0], stroke: "hsl(var(--card))", strokeWidth: 2 }} isAnimationActive={false} />
             </LineChart>
           }
-          table={<DataTable head={["Season", "Attempts", "Clean"]} rows={trends.map((t) => [t.season, t.n, pct(t.cleanRate, 1)])} />}
+          table={<DataTable head={["الموسم", "المحاولات", "نظيفة"]} rows={trends.map((t) => [t.season, t.n, pct(t.cleanRate, 1)])} />}
         />
       </div>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Most common jump combinations</CardTitle>
-          <CardDescription>Senior singles, men and women together. A combination is clean only if every jump in it is.</CardDescription>
+          <CardTitle className="text-base">أكثر مجموعات القفز شيوعًا</CardTitle>
+          <CardDescription>فردي الكبار، رجال وسيدات معًا. تُعد المجموعة نظيفة فقط إذا كانت كل قفزاتها نظيفة.</CardDescription>
         </CardHeader>
         <CardContent className="max-h-[420px] overflow-auto">
           <DataTable
-            head={["Combination", "Attempts", "Clean", "Falls", "Mean GOE"]}
-            rows={J.combos.map((c) => [<span className="font-mono">{c.combo}</span>, c.n, pct(c.cleanRate, 1), pct(c.fallRate, 1), c.meanGoe?.toFixed(2)])}
+            head={["المجموعة", "المحاولات", "نظيفة", "سقوط", "متوسط GOE"]}
+            rows={J.combos.map((c) => [<span className="font-mono" dir="ltr">{c.combo}</span>, c.n, pct(c.cleanRate, 1), pct(c.fallRate, 1), c.meanGoe?.toFixed(2)])}
           />
         </CardContent>
       </Card>

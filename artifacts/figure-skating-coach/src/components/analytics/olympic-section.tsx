@@ -18,6 +18,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { analytics, isJump, linearFit, type Discipline, type ElementRow, type Performance } from "@/data/olympic-analytics";
 import { VIZ, axisProps, tooltipStyle } from "@/lib/viz";
+import { COMPONENT_LABELS, label } from "@/lib/labels";
 import { DataTable, VizCard } from "./shared";
 
 export type SegmentFilter = "combined" | "SP" | "FS";
@@ -36,6 +37,11 @@ interface Row {
 }
 
 const legendText = (value: string) => <span className="text-foreground">{value}</span>;
+export const EVENT_NAMES: Record<string, string> = {
+  "Olympics 2022": "أولمبياد بكين 2022",
+  "Olympics 2026": "أولمبياد ميلانو كورتينا 2026",
+};
+const componentName = (c: string) => label(COMPONENT_LABELS, c);
 const shortName = (name: string) => name.replace(/\b([A-Z][a-z]+)\s/g, (m, first: string) => `${first[0]}. `);
 
 function buildRows(event: string, discipline: Discipline, segment: SegmentFilter): Row[] {
@@ -68,7 +74,9 @@ export function OlympicSection({ event, discipline, segment, topN }: { event: st
   const tesShare = top.length ? top.reduce((s, r) => s + r.tes / (r.tes + r.pcs), 0) / top.length : 0;
   const componentNames = rows[0] ? Object.keys(rows[0].components) : [];
   const leaders = rows.slice(0, 3);
-  const scale = segment === "combined" ? "SP + FS" : segment === "SP" ? (discipline === "Ice Dance" ? "Rhythm dance" : "Short program") : discipline === "Ice Dance" ? "Free dance" : "Free skate";
+  const dance = discipline === "Ice Dance";
+  const scale = segment === "combined" ? "المجموع (البرنامجان)" : segment === "SP" ? (dance ? "رقصة الإيقاع" : "البرنامج القصير") : dance ? "الرقصة الحرة" : "البرنامج الحر";
+  const entrants = discipline === "Men" || discipline === "Women" ? "المتزلجين" : "الفرق";
 
   const tesRange = rows.length ? [Math.min(...rows.map((r) => r.tes)), Math.max(...rows.map((r) => r.tes))] : [0, 0];
 
@@ -78,18 +86,18 @@ export function OlympicSection({ event, discipline, segment, topN }: { event: st
         {podium.map((p, i) => (
           <Card key={p.name}>
             <CardContent className="p-4">
-              <div className="text-xs font-medium text-muted-foreground">{["Gold", "Silver", "Bronze"][i]} · {event}</div>
+              <div className="text-xs font-medium text-muted-foreground">{["الميدالية الذهبية", "الميدالية الفضية", "الميدالية البرونزية"][i]} · {EVENT_NAMES[event] ?? event}</div>
               <div className="mt-1 font-semibold text-foreground">{p.name} <span className="text-muted-foreground font-normal">{p.noc}</span></div>
               <div className="mt-1 text-2xl font-semibold">{p.total.toFixed(2)}</div>
-              <div className="text-xs text-muted-foreground">{discipline === "Ice Dance" ? "RD" : "SP"} {p.sp?.toFixed(2) ?? "–"} · {discipline === "Ice Dance" ? "FD" : "FS"} {p.fs?.toFixed(2) ?? "–"}</div>
+              <div className="text-xs text-muted-foreground">{dance ? "رقصة الإيقاع" : "القصير"} {p.sp?.toFixed(2) ?? "–"} · {dance ? "الرقصة الحرة" : "الحر"} {p.fs?.toFixed(2) ?? "–"}</div>
             </CardContent>
           </Card>
         ))}
       </div>
 
       <VizCard
-        title={`TES and PCS – top ${top.length} (${scale})`}
-        description={`On average technical elements make up ${(tesShare * 100).toFixed(0)}% of these skaters' TES + PCS. Deductions are listed in the table.`}
+        title={`درجة العناصر الفنية (TES) ومكونات البرنامج (PCS) – أفضل ${top.length} (${scale})`}
+        description={`تمثل العناصر الفنية في المتوسط ${(tesShare * 100).toFixed(0)}% من مجموع TES + PCS لهؤلاء ${entrants}. الخصومات موضحة في الجدول.`}
         height={Math.max(220, top.length * 34 + 60)}
         chart={
           <BarChart data={top.map((r) => ({ ...r, label: `${r.rank}. ${shortName(r.name)}` }))} layout="vertical" margin={{ top: 4, right: 16, bottom: 4, left: 8 }} barCategoryGap={6}>
@@ -102,17 +110,17 @@ export function OlympicSection({ event, discipline, segment, topN }: { event: st
               formatter={(v: number, name: string) => [v.toFixed(2), name]}
               labelFormatter={(label: string, payload) => {
                 const r = payload?.[0]?.payload as Row | undefined;
-                return r ? `${label} (${r.noc}) – total ${r.total.toFixed(2)}${r.deductions ? `, deductions ${r.deductions}` : ""}` : label;
+                return r ? `${label} (${r.noc}) – المجموع ${r.total.toFixed(2)}${r.deductions ? `، الخصومات ${r.deductions}` : ""}` : label;
               }}
             />
             <Legend wrapperStyle={{ fontSize: 12 }} formatter={legendText} />
-            <Bar dataKey="tes" name="TES (technical)" stackId="s" fill={VIZ.series[0]} stroke="hsl(var(--card))" strokeWidth={2} isAnimationActive={false} />
-            <Bar dataKey="pcs" name="PCS (components)" stackId="s" fill={VIZ.series[1]} stroke="hsl(var(--card))" strokeWidth={2} radius={[0, 4, 4, 0]} isAnimationActive={false} />
+            <Bar dataKey="tes" name="TES (العناصر الفنية)" stackId="s" fill={VIZ.series[0]} stroke="hsl(var(--card))" strokeWidth={2} isAnimationActive={false} />
+            <Bar dataKey="pcs" name="PCS (مكونات البرنامج)" stackId="s" fill={VIZ.series[1]} stroke="hsl(var(--card))" strokeWidth={2} radius={[0, 4, 4, 0]} isAnimationActive={false} />
           </BarChart>
         }
         table={
           <DataTable
-            head={["Skater", "Rank", "TES", "PCS", "Ded.", "Falls", "Total"]}
+            head={[dance || discipline === "Pairs" ? "الفريق" : "المتزلج", "المركز", "TES", "PCS", "الخصومات", "السقطات", "المجموع"]}
             rows={top.map((r) => [`${r.name} (${r.noc})`, r.rank, r.tes.toFixed(2), r.pcs.toFixed(2), r.deductions.toFixed(2), r.falls, r.total.toFixed(2)])}
           />
         }
@@ -120,11 +128,11 @@ export function OlympicSection({ event, discipline, segment, topN }: { event: st
 
       <div className="grid gap-6 lg:grid-cols-2">
         <VizCard
-          title="Do technical and component scores move together?"
+          title="هل تتحرك الدرجات الفنية ودرجات المكونات معًا؟"
           description={
             fit
-              ? `All ${rows.length} ${discipline === "Men" || discipline === "Women" ? "skaters" : "teams"}. Pearson r = ${fit.r.toFixed(2)}; each extra TES point goes with ${fit.slope.toFixed(2)} PCS points on average.`
-              : "Not enough skaters."
+              ? `كل ${entrants} (${rows.length}). معامل ارتباط بيرسون r = ${fit.r.toFixed(2)}؛ كل نقطة إضافية في TES يقابلها ${fit.slope.toFixed(2)} نقطة PCS في المتوسط.`
+              : "عدد غير كافٍ من المشاركين."
           }
           chart={
             <ScatterChart margin={{ top: 8, right: 16, bottom: 16, left: 0 }}>
@@ -159,14 +167,14 @@ export function OlympicSection({ event, discipline, segment, topN }: { event: st
               <Scatter data={rows} fill={VIZ.series[0]} stroke="hsl(var(--card))" strokeWidth={2} isAnimationActive={false} />
             </ScatterChart>
           }
-          table={<DataTable head={["Skater", "TES", "PCS"]} rows={rows.map((r) => [`${r.rank}. ${r.name}`, r.tes.toFixed(2), r.pcs.toFixed(2)])} />}
+          table={<DataTable head={[dance || discipline === "Pairs" ? "الفريق" : "المتزلج", "TES", "PCS"]} rows={rows.map((r) => [`${r.rank}. ${r.name}`, r.tes.toFixed(2), r.pcs.toFixed(2)])} />}
         />
 
         <VizCard
-          title="Program component marks – top 3"
-          description={`Average judges' mark (0–10) per component${segment === "combined" ? ", mean of both segments" : ""}. ${componentNames.length === 5 ? "2022 used five components; they were merged into three from 2022/23." : ""}`}
+          title="درجات مكونات البرنامج – أفضل 3"
+          description={`متوسط درجة الحكام (0–10) لكل مكون${segment === "combined" ? "، كمتوسط للبرنامجين" : ""}. ${componentNames.length === 5 ? "استُخدمت خمسة مكونات في 2022، ثم دُمجت في ثلاثة ابتداءً من موسم 2022/23." : ""}`}
           chart={
-            <BarChart data={componentNames.map((c) => Object.fromEntries([["component", c], ...leaders.map((l) => [l.name, l.components[c]])]))} margin={{ top: 8, right: 16, bottom: 4, left: 0 }} barGap={2}>
+            <BarChart data={componentNames.map((c) => Object.fromEntries([["component", componentName(c)], ...leaders.map((l) => [l.name, l.components[c]])]))} margin={{ top: 8, right: 16, bottom: 4, left: 0 }} barGap={2}>
               <CartesianGrid stroke={VIZ.grid} vertical={false} />
               <XAxis dataKey="component" {...axisProps} interval={0} tick={{ fontSize: 11 }} tickFormatter={(c: string) => (c.length > 14 ? c.split(" ")[0] : c)} />
               <YAxis {...axisProps} domain={[0, 10]} />
@@ -179,8 +187,8 @@ export function OlympicSection({ event, discipline, segment, topN }: { event: st
           }
           table={
             <DataTable
-              head={["Component", ...leaders.map((l) => shortName(l.name))]}
-              rows={componentNames.map((c) => [c, ...leaders.map((l) => l.components[c]?.toFixed(2) ?? "–")])}
+              head={["المكون", ...leaders.map((l) => shortName(l.name))]}
+              rows={componentNames.map((c) => [componentName(c), ...leaders.map((l) => l.components[c]?.toFixed(2) ?? "–")])}
             />
           }
         />
@@ -212,12 +220,12 @@ function ElementComparison({ rows, segment }: { rows: Row[]; segment: "SP" | "FS
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Element-by-element comparison ({segment === "SP" ? "short program" : "free skate"})</CardTitle>
-        <CardDescription>Base value, GOE and protocol calls for each element. Highlighted rows are jumps that were not clean.</CardDescription>
+        <CardTitle className="text-base">مقارنة عنصرًا بعنصر ({segment === "SP" ? "البرنامج القصير" : "البرنامج الحر"})</CardTitle>
+        <CardDescription>القيمة الأساسية ودرجة التنفيذ (GOE) ونداءات البروتوكول لكل عنصر. الصفوف المظللة قفزات لم تكن نظيفة.</CardDescription>
         <div className="grid grid-cols-2 gap-3 pt-2">
           {[a, b].map((value, slot) => (
             <div key={slot} className="space-y-1">
-              <Label htmlFor={`cmp-${slot}`}>Skater {slot === 0 ? "A" : "B"}</Label>
+              <Label htmlFor={`cmp-${slot}`}>{slot === 0 ? "المتزلج الأول" : "المتزلج الثاني"}</Label>
               <Select value={String(value)} onValueChange={(v) => (slot === 0 ? setA : setB)(Number(v))}>
                 <SelectTrigger id={`cmp-${slot}`}><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -237,20 +245,20 @@ function ElementComparison({ rows, segment }: { rows: Row[]; segment: "SP" | "FS
               <div className="flex flex-wrap gap-2 text-xs">
                 <Badge variant="secondary">TES {perf.tes.toFixed(2)}</Badge>
                 <Badge variant="secondary">PCS {perf.pcs.toFixed(2)}</Badge>
-                <Badge variant="secondary">Base value {sum.bv.toFixed(2)}</Badge>
+                <Badge variant="secondary">القيمة الأساسية {sum.bv.toFixed(2)}</Badge>
                 <Badge variant="secondary">GOE {sum.goe >= 0 ? "+" : ""}{sum.goe.toFixed(2)}</Badge>
-                <Badge variant="secondary">Clean jumps {sum.clean}/{sum.jumps}</Badge>
-                {sum.falls > 0 && <Badge variant="destructive">Falls {sum.falls}</Badge>}
+                <Badge variant="secondary">قفزات نظيفة <span dir="ltr">{sum.clean}/{sum.jumps}</span></Badge>
+                {sum.falls > 0 && <Badge variant="destructive">السقطات {sum.falls}</Badge>}
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-muted-foreground">
-                      <th className="py-1.5 pr-2 text-left font-medium">#</th>
-                      <th className="py-1.5 pr-2 text-left font-medium">Element</th>
-                      <th className="py-1.5 pr-2 text-right font-medium">BV</th>
-                      <th className="py-1.5 pr-2 text-right font-medium">GOE</th>
-                      <th className="py-1.5 text-right font-medium">Score</th>
+                      <th className="py-1.5 pe-2 text-start font-medium">#</th>
+                      <th className="py-1.5 pe-2 text-start font-medium">العنصر</th>
+                      <th className="py-1.5 pe-2 text-end font-medium">القيمة الأساسية</th>
+                      <th className="py-1.5 pe-2 text-end font-medium">GOE</th>
+                      <th className="py-1.5 text-end font-medium">الدرجة</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -258,15 +266,15 @@ function ElementComparison({ rows, segment }: { rows: Row[]; segment: "SP" | "FS
                       const failed = isJump(e) && e.clean === false;
                       return (
                         <tr key={e.no} className={failed ? "bg-destructive/10" : undefined}>
-                          <td className="py-1.5 pr-2 text-muted-foreground">{e.no}</td>
-                          <td className="py-1.5 pr-2 font-mono">
+                          <td className="py-1.5 pe-2 text-muted-foreground">{e.no}</td>
+                          <td className="py-1.5 pe-2 font-mono" dir="ltr">
                             {e.code}
-                            {e.fall && <span className="ml-1 text-xs font-sans font-semibold text-destructive">fall</span>}
-                            {e.secondHalf && <span className="ml-1 text-xs font-sans text-muted-foreground">x</span>}
+                            {e.fall && <span className="ms-1 text-xs font-sans font-semibold text-destructive">سقوط</span>}
+                            {e.secondHalf && <span className="ms-1 text-xs font-sans text-muted-foreground" title="مكافأة النصف الثاني">x</span>}
                           </td>
-                          <td className="py-1.5 pr-2 text-right font-mono tabular-nums">{e.bv?.toFixed(2)}</td>
-                          <td className="py-1.5 pr-2 text-right font-mono tabular-nums">{e.goe != null && e.goe > 0 ? "+" : ""}{e.goe?.toFixed(2)}</td>
-                          <td className="py-1.5 text-right font-mono tabular-nums">{e.score?.toFixed(2)}</td>
+                          <td className="py-1.5 pe-2 text-end font-mono tabular-nums">{e.bv?.toFixed(2)}</td>
+                          <td className="py-1.5 pe-2 text-end font-mono tabular-nums" dir="ltr">{e.goe != null && e.goe > 0 ? "+" : ""}{e.goe?.toFixed(2)}</td>
+                          <td className="py-1.5 text-end font-mono tabular-nums">{e.score?.toFixed(2)}</td>
                         </tr>
                       );
                     })}
