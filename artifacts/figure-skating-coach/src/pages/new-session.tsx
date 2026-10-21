@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft } from "lucide-react";
+import { SESSION_TYPE_LABELS } from "@/lib/labels";
 import { Link } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,7 +27,7 @@ export default function NewSession() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!athleteId) {
-      toast({ title: "Error", description: "Please select an athlete", variant: "destructive" });
+      toast({ title: "خطأ", description: "يرجى اختيار لاعب", variant: "destructive" });
       return;
     }
 
@@ -40,11 +41,11 @@ export default function NewSession() {
       }
     }, {
       onSuccess: (session) => {
-        toast({ title: "Session created", description: "You can now log technical elements." });
+        toast({ title: "تم", description: "تم إنشاء الجلسة، ويمكنك الآن تسجيل العناصر الفنية." });
         setLocation(`/sessions/${session.id}`);
       },
       onError: (err) => {
-        toast({ title: "Failed to create session", description: "An error occurred.", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّر إنشاء الجلسة.", variant: "destructive" });
       }
     });
   };
@@ -53,11 +54,11 @@ export default function NewSession() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/sessions"><ArrowLeft className="w-4 h-4" /></Link>
+          <Link href="/sessions" aria-label="رجوع إلى الجلسات"><ArrowLeft className="w-4 h-4 rtl:rotate-180" /></Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Log Session</h1>
-          <p className="text-muted-foreground">Create a new performance or practice session</p>
+          <h1 className="text-3xl font-bold tracking-tight">تسجيل جلسة</h1>
+          <p className="text-muted-foreground">أنشئ جلسة عرض أو تمرين جديدة</p>
         </div>
       </div>
 
@@ -65,10 +66,10 @@ export default function NewSession() {
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="athlete">Athlete</Label>
+              <Label htmlFor="athlete">اللاعب</Label>
               <Select value={athleteId} onValueChange={setAthleteId}>
                 <SelectTrigger id="athlete">
-                  <SelectValue placeholder="Select athlete" />
+                  <SelectValue placeholder="اختر لاعبًا" />
                 </SelectTrigger>
                 <SelectContent>
                   {athletes?.map(a => (
@@ -79,22 +80,21 @@ export default function NewSession() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type">Session Type</Label>
+              <Label htmlFor="type">نوع الجلسة</Label>
               <Select value={sessionType} onValueChange={(v) => setSessionType(v as PerformanceSessionInputSessionType)}>
                 <SelectTrigger id="type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="short_program">Short Program</SelectItem>
-                  <SelectItem value="free_skate">Free Skate</SelectItem>
-                  <SelectItem value="exhibition">Exhibition</SelectItem>
-                  <SelectItem value="practice">Practice</SelectItem>
+                  {Object.entries(SESSION_TYPE_LABELS).map(([value, text]) => (
+                    <SelectItem key={value} value={value}>{text}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date">التاريخ</Label>
               <Input 
                 id="date" 
                 type="date" 
@@ -105,30 +105,30 @@ export default function NewSession() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="venue">Venue (Optional)</Label>
+              <Label htmlFor="venue">المكان (اختياري)</Label>
               <Input 
                 id="venue" 
                 value={venue} 
                 onChange={(e) => setVenue(e.target.value)} 
-                placeholder="e.g. Olympic Training Center" 
+                placeholder="مثال: مركز التدريب الأولمبي" 
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes">ملاحظات (اختياري)</Label>
               <Textarea 
                 id="notes" 
                 value={notes} 
                 onChange={(e) => setNotes(e.target.value)} 
-                placeholder="Session focus, conditions, overall feeling..." 
+                placeholder="تركيز الجلسة، الظروف، الانطباع العام..." 
                 className="min-h-[100px]"
               />
             </div>
 
             <div className="pt-4 flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setLocation('/sessions')}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setLocation('/sessions')}>إلغاء</Button>
               <Button type="submit" disabled={createSession.isPending}>
-                {createSession.isPending ? "Creating..." : "Create Session"}
+                {createSession.isPending ? "جارٍ الإنشاء..." : "إنشاء الجلسة"}
               </Button>
             </div>
           </form>

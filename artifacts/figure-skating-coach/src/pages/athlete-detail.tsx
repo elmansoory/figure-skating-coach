@@ -20,7 +20,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from "date-fns";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { Link } from "wouter";
 import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
@@ -32,16 +31,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDelete } from "@/components/confirm-delete";
 import { useToast } from "@/hooks/use-toast";
+import { DISCIPLINE_LABELS, LEVEL_LABELS, SESSION_TYPE_LABELS, formatDate, label } from "@/lib/labels";
 
-const formatDiscipline = (d: string) => {
-  const map: Record<string, string> = {
-    singles_men: "Men's Singles",
-    singles_ladies: "Ladies' Singles",
-    pairs: "Pairs",
-    ice_dance: "Ice Dance"
-  };
-  return map[d] || d;
-};
+const formatDiscipline = (d: string) => label(DISCIPLINE_LABELS, d);
 
 function EditAthleteDialog({ athlete }: { athlete: Athlete }) {
   const updateAthlete = useUpdateAthlete();
@@ -87,12 +79,12 @@ function EditAthleteDialog({ athlete }: { athlete: Athlete }) {
       }
     }, {
       onSuccess: () => {
-        toast({ title: "Success", description: "Athlete updated" });
+        toast({ title: "تم", description: "تم تحديث بيانات اللاعب" });
         queryClient.invalidateQueries();
         setOpen(false);
       },
       onError: () => {
-        toast({ title: "Error", description: "Failed to update athlete", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّر تحديث بيانات اللاعب", variant: "destructive" });
       }
     });
   };
@@ -101,70 +93,67 @@ function EditAthleteDialog({ athlete }: { athlete: Athlete }) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Pencil className="w-4 h-4 mr-2" />
-          Edit
+          <Pencil className="w-4 h-4 me-2" />
+          تعديل
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Athlete</DialogTitle>
+          <DialogTitle>تعديل بيانات اللاعب</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-name">Full Name</Label>
+            <Label htmlFor="edit-name">الاسم الكامل</Label>
             <Input id="edit-name" value={name} onChange={(e) => setName(e.target.value)} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-discipline">Discipline</Label>
+              <Label htmlFor="edit-discipline">التخصص</Label>
               <Select value={discipline} onValueChange={(v) => setDiscipline(v as AthleteUpdateDiscipline)}>
                 <SelectTrigger id="edit-discipline">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="singles_men">Men's Singles</SelectItem>
-                  <SelectItem value="singles_ladies">Ladies' Singles</SelectItem>
-                  <SelectItem value="pairs">Pairs</SelectItem>
-                  <SelectItem value="ice_dance">Ice Dance</SelectItem>
+                  {Object.entries(DISCIPLINE_LABELS).map(([value, text]) => (
+                    <SelectItem key={value} value={value}>{text}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-level">Level</Label>
+              <Label htmlFor="edit-level">المستوى</Label>
               <Select value={level} onValueChange={(v) => setLevel(v as AthleteUpdateLevel)}>
                 <SelectTrigger id="edit-level">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="beginner">Beginner</SelectItem>
-                  <SelectItem value="intermediate">Intermediate</SelectItem>
-                  <SelectItem value="advanced">Advanced</SelectItem>
-                  <SelectItem value="junior">Junior</SelectItem>
-                  <SelectItem value="senior">Senior</SelectItem>
+                  {Object.entries(LEVEL_LABELS).map(([value, text]) => (
+                    <SelectItem key={value} value={value}>{text}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-nationality">Nationality</Label>
-              <Input id="edit-nationality" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="e.g., EGY" />
+              <Label htmlFor="edit-nationality">الجنسية</Label>
+              <Input id="edit-nationality" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="مثال: EGY" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-dob">Date of Birth</Label>
+              <Label htmlFor="edit-dob">تاريخ الميلاد</Label>
               <Input id="edit-dob" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-pb">Personal Best</Label>
+              <Label htmlFor="edit-pb">أفضل نتيجة شخصية</Label>
               <Input id="edit-pb" type="number" step="0.01" min="0" value={personalBestScore} onChange={(e) => setPersonalBestScore(e.target.value)} />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-notes">Notes</Label>
+            <Label htmlFor="edit-notes">ملاحظات</Label>
             <Textarea id="edit-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <div className="pt-4 flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
             <Button type="submit" disabled={updateAthlete.isPending}>
-              {updateAthlete.isPending ? "Saving..." : "Save Changes"}
+              {updateAthlete.isPending ? "جارٍ الحفظ..." : "حفظ التغييرات"}
             </Button>
           </div>
         </form>
@@ -189,13 +178,13 @@ export default function AthleteDetail() {
   const handleDelete = () => {
     deleteAthlete.mutate({ id }, {
       onSuccess: () => {
-        toast({ title: "Athlete deleted" });
+        toast({ title: "تم", description: "تم حذف اللاعب" });
         queryClient.removeQueries({ queryKey: getGetAthleteQueryKey(id) });
         queryClient.invalidateQueries();
         setLocation("/athletes");
       },
       onError: () => {
-        toast({ title: "Error", description: "Failed to delete athlete", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّر حذف اللاعب", variant: "destructive" });
       }
     });
   };
@@ -204,41 +193,41 @@ export default function AthleteDetail() {
     return <div className="space-y-6"><Skeleton className="h-32 w-full" /></div>;
   }
 
-  if (!athlete) return <div>Athlete not found</div>;
+  if (!athlete) return <div>اللاعب غير موجود</div>;
 
   const formattedProgress = progress?.map(p => ({
     ...p,
-    dateStr: format(new Date(p.date), 'MMM d')
+    dateStr: formatDate(p.date, 'd MMM')
   })) || [];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/athletes"><ArrowLeft className="w-4 h-4" /></Link>
+          <Link href="/athletes" aria-label="رجوع إلى اللاعبين"><ArrowLeft className="w-4 h-4 rtl:rotate-180" /></Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3">
             {athlete.name}
             {athlete.nationality && <span className="text-xl font-normal text-muted-foreground">{athlete.nationality}</span>}
           </h1>
           <div className="text-muted-foreground flex gap-2 items-center mt-1">
-            <span className="capitalize">{athlete.level}</span>
+            <span>{label(LEVEL_LABELS, athlete.level)}</span>
             <span>•</span>
             <span>{formatDiscipline(athlete.discipline)}</span>
           </div>
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="ms-auto flex gap-2">
           <EditAthleteDialog athlete={athlete} />
           <ConfirmDelete
             trigger={
               <Button variant="outline" size="sm" className="text-destructive">
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
+                <Trash2 className="w-4 h-4 me-2" />
+                حذف
               </Button>
             }
-            title={`Delete ${athlete.name}?`}
-            description="This permanently deletes the athlete together with all their sessions and recorded elements. Training programs assigned to them are kept but become unassigned."
+            title={`حذف ${athlete.name}؟`}
+            description="سيتم حذف اللاعب نهائيًا مع كل جلساته والعناصر المسجلة. برامج التدريب المخصصة له ستبقى لكن بدون تخصيص."
             onConfirm={handleDelete}
             isPending={deleteAthlete.isPending}
           />
@@ -248,7 +237,7 @@ export default function AthleteDetail() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Personal Best</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">أفضل نتيجة شخصية</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold font-mono text-primary">
@@ -260,19 +249,19 @@ export default function AthleteDetail() {
 
       <Tabs defaultValue="progress">
         <TabsList>
-          <TabsTrigger value="progress">Progress</TabsTrigger>
-          <TabsTrigger value="elements">Elements Analysis</TabsTrigger>
-          <TabsTrigger value="sessions">Recent Sessions</TabsTrigger>
+          <TabsTrigger value="progress">التطور</TabsTrigger>
+          <TabsTrigger value="elements">تحليل العناصر</TabsTrigger>
+          <TabsTrigger value="sessions">أحدث الجلسات</TabsTrigger>
         </TabsList>
         
         <TabsContent value="progress" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Score Progression</CardTitle>
-              <CardDescription>Total score across all logged sessions</CardDescription>
+              <CardTitle>تطور الدرجات</CardTitle>
+              <CardDescription>الدرجة الكلية في كل الجلسات المسجلة</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[400px]">
+              <div className="h-[400px]" dir="ltr">
                 {isLoadingProgress ? <Skeleton className="h-full w-full" /> : (
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={formattedProgress}>
@@ -282,6 +271,7 @@ export default function AthleteDetail() {
                       <Tooltip 
                         contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
                         itemStyle={{ color: 'hsl(var(--foreground))' }}
+                        formatter={(value: number) => [value.toFixed(2), 'الدرجة الكلية']}
                       />
                       <Line type="monotone" dataKey="totalScore" stroke="hsl(var(--primary))" strokeWidth={3} dot={{ r: 4, fill: 'hsl(var(--primary))' }} activeDot={{ r: 6 }} />
                     </LineChart>
@@ -295,11 +285,11 @@ export default function AthleteDetail() {
         <TabsContent value="elements" className="space-y-4 pt-4">
           <Card>
             <CardHeader>
-              <CardTitle>Element Success Rate</CardTitle>
-              <CardDescription>Average success rate across all elements</CardDescription>
+              <CardTitle>نسبة نجاح العناصر</CardTitle>
+              <CardDescription>متوسط نسبة النجاح لكل عنصر</CardDescription>
             </CardHeader>
             <CardContent>
-               <div className="h-[400px]">
+               <div className="h-[400px]" dir="ltr">
                 {isLoadingStats ? <Skeleton className="h-full w-full" /> : (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={elementStats || []}>
@@ -307,7 +297,7 @@ export default function AthleteDetail() {
                       <XAxis dataKey="elementCode" stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} />
                       <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickLine={false} axisLine={false} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
                       <Tooltip 
-                        formatter={(value: number) => [`${value}%`, 'Success Rate']}
+                        formatter={(value: number) => [`${value}%`, 'نسبة النجاح']}
                         contentStyle={{ backgroundColor: 'hsl(var(--card))', borderColor: 'hsl(var(--border))', borderRadius: '8px' }}
                       />
                       <Bar dataKey="successRate" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
@@ -327,8 +317,8 @@ export default function AthleteDetail() {
                    <Card className="hover:border-primary transition-colors cursor-pointer">
                      <CardContent className="p-4 flex items-center justify-between">
                         <div>
-                          <div className="font-semibold text-lg">{format(new Date(session.date), "MMMM d, yyyy")}</div>
-                          <div className="text-sm text-muted-foreground capitalize">{session.sessionType.replace('_', ' ')}</div>
+                          <div className="font-semibold text-lg">{formatDate(session.date)}</div>
+                          <div className="text-sm text-muted-foreground">{label(SESSION_TYPE_LABELS, session.sessionType)}</div>
                         </div>
                         {session.totalScore && (
                           <div className="text-2xl font-mono font-bold">{session.totalScore.toFixed(2)}</div>
@@ -337,7 +327,7 @@ export default function AthleteDetail() {
                    </Card>
                  </Link>
                ))}
-               {sessions?.length === 0 && <div className="text-muted-foreground text-center py-8">No sessions logged yet.</div>}
+               {sessions?.length === 0 && <div className="text-muted-foreground text-center py-8">لم تُسجَّل أي جلسات بعد.</div>}
              </div>
            )}
         </TabsContent>

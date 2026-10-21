@@ -30,13 +30,13 @@ export function ConfirmDelete({ trigger, title, description, onConfirm, isPendin
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>إلغاء</AlertDialogCancel>
           <AlertDialogAction
             className={buttonVariants({ variant: "destructive" })}
             disabled={isPending}
             onClick={onConfirm}
           >
-            {isPending ? "Deleting..." : "Delete"}
+            {isPending ? "جارٍ الحذف..." : "حذف"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

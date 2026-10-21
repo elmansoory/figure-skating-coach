@@ -26,6 +26,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { ConfirmDelete } from "@/components/confirm-delete";
 import { ArrowLeft, Plus, Pencil, Trash2 } from "lucide-react";
+import { ELEMENT_TYPE_LABELS, SESSION_TYPE_LABELS, formatDate, label } from "@/lib/labels";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
@@ -79,12 +80,12 @@ function EditSessionDialog({ session }: { session: PerformanceSession }) {
       }
     }, {
       onSuccess: () => {
-        toast({ title: "Success", description: "Session updated" });
+        toast({ title: "تم", description: "تم تحديث الجلسة" });
         queryClient.invalidateQueries();
         setOpen(false);
       },
       onError: () => {
-        toast({ title: "Error", description: "Failed to update session", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّر تحديث الجلسة", variant: "destructive" });
       }
     });
   };
@@ -93,36 +94,35 @@ function EditSessionDialog({ session }: { session: PerformanceSession }) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Pencil className="w-4 h-4 mr-2" />
-          Edit
+          <Pencil className="w-4 h-4 me-2" />
+          تعديل
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Session</DialogTitle>
+          <DialogTitle>تعديل الجلسة</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 pt-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-type">Session Type</Label>
+              <Label htmlFor="edit-type">نوع الجلسة</Label>
               <Select value={sessionType} onValueChange={(v) => setSessionType(v as PerformanceSessionUpdateSessionType)}>
                 <SelectTrigger id="edit-type">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="short_program">Short Program</SelectItem>
-                  <SelectItem value="free_skate">Free Skate</SelectItem>
-                  <SelectItem value="exhibition">Exhibition</SelectItem>
-                  <SelectItem value="practice">Practice</SelectItem>
+                  {Object.entries(SESSION_TYPE_LABELS).map(([value, text]) => (
+                    <SelectItem key={value} value={value}>{text}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-date">Date</Label>
+              <Label htmlFor="edit-date">التاريخ</Label>
               <Input id="edit-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-total">Total Score</Label>
+              <Label htmlFor="edit-total">الدرجة الكلية</Label>
               <Input id="edit-total" type="number" step="0.01" value={totalScore} onChange={(e) => setTotalScore(e.target.value)} />
             </div>
             <div className="space-y-2">
@@ -134,22 +134,22 @@ function EditSessionDialog({ session }: { session: PerformanceSession }) {
               <Input id="edit-pcs" type="number" step="0.01" value={componentScore} onChange={(e) => setComponentScore(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="edit-deductions">Deductions</Label>
+              <Label htmlFor="edit-deductions">الخصومات</Label>
               <Input id="edit-deductions" type="number" step="0.01" min="0" value={deductions} onChange={(e) => setDeductions(e.target.value)} />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-venue">Venue</Label>
+            <Label htmlFor="edit-venue">المكان</Label>
             <Input id="edit-venue" value={venue} onChange={(e) => setVenue(e.target.value)} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-notes">Notes</Label>
+            <Label htmlFor="edit-notes">ملاحظات</Label>
             <Textarea id="edit-notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
           <div className="pt-4 flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
             <Button type="submit" disabled={updateSession.isPending}>
-              {updateSession.isPending ? "Saving..." : "Save Changes"}
+              {updateSession.isPending ? "جارٍ الحفظ..." : "حفظ التغييرات"}
             </Button>
           </div>
         </form>
@@ -207,12 +207,12 @@ export default function SessionDetail() {
     };
     const callbacks = {
       onSuccess: () => {
-        toast({ title: "Success", description: editingElement ? "Element updated" : "Element added successfully" });
+        toast({ title: "تم", description: editingElement ? "تم تحديث العنصر" : "تمت إضافة العنصر بنجاح" });
         queryClient.invalidateQueries();
         setOpen(false);
       },
       onError: () => {
-        toast({ title: "Error", description: editingElement ? "Failed to update element" : "Failed to add element", variant: "destructive" });
+        toast({ title: "خطأ", description: editingElement ? "تعذّر تحديث العنصر" : "تعذّرت إضافة العنصر", variant: "destructive" });
       }
     };
 
@@ -226,11 +226,11 @@ export default function SessionDetail() {
   const handleDeleteElement = (elementId: number) => {
     deleteElement.mutate({ id: elementId }, {
       onSuccess: () => {
-        toast({ title: "Element deleted" });
+        toast({ title: "تم", description: "تم حذف العنصر" });
         queryClient.invalidateQueries();
       },
       onError: () => {
-        toast({ title: "Error", description: "Failed to delete element", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّر حذف العنصر", variant: "destructive" });
       }
     });
   };
@@ -238,13 +238,13 @@ export default function SessionDetail() {
   const handleDeleteSession = () => {
     deleteSession.mutate({ id }, {
       onSuccess: () => {
-        toast({ title: "Session deleted" });
+        toast({ title: "تم", description: "تم حذف الجلسة" });
         queryClient.removeQueries({ queryKey: getGetSessionQueryKey(id) });
         queryClient.invalidateQueries();
         setLocation("/sessions");
       },
       onError: () => {
-        toast({ title: "Error", description: "Failed to delete session", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّر حذف الجلسة", variant: "destructive" });
       }
     });
   };
@@ -255,20 +255,20 @@ export default function SessionDetail() {
     return <div className="space-y-6"><Skeleton className="h-32 w-full" /></div>;
   }
 
-  if (!session) return <div>Session not found</div>;
+  if (!session) return <div>الجلسة غير موجودة</div>;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/sessions"><ArrowLeft className="w-4 h-4" /></Link>
+          <Link href="/sessions" aria-label="رجوع إلى الجلسات"><ArrowLeft className="w-4 h-4 rtl:rotate-180" /></Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            {session.athleteName || 'Unknown Athlete'} - {format(new Date(session.date), "MMMM d, yyyy")}
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            <bdi>{session.athleteName || 'لاعب غير معروف'}</bdi> – <bdi>{formatDate(session.date)}</bdi>
           </h1>
           <div className="text-muted-foreground flex gap-2 items-center mt-1">
-            <span className="capitalize">{session.sessionType.replace('_', ' ')}</span>
+            <span>{label(SESSION_TYPE_LABELS, session.sessionType)}</span>
             {session.venue && (
               <>
                 <span>•</span>
@@ -277,17 +277,17 @@ export default function SessionDetail() {
             )}
           </div>
         </div>
-        <div className="ml-auto flex gap-2">
+        <div className="ms-auto flex gap-2">
           <EditSessionDialog session={session} />
           <ConfirmDelete
             trigger={
               <Button variant="outline" size="sm" className="text-destructive">
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
+                <Trash2 className="w-4 h-4 me-2" />
+                حذف
               </Button>
             }
-            title="Delete this session?"
-            description="This permanently deletes the session and all of its recorded elements."
+            title="حذف هذه الجلسة؟"
+            description="سيتم حذف الجلسة نهائيًا مع كل العناصر المسجلة فيها."
             onConfirm={handleDeleteSession}
             isPending={deleteSession.isPending}
           />
@@ -297,7 +297,7 @@ export default function SessionDetail() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Total Score</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">الدرجة الكلية</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold font-mono text-primary">
@@ -307,7 +307,7 @@ export default function SessionDetail() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Technical Elements (TES)</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">درجة العناصر الفنية (TES)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">
@@ -317,7 +317,7 @@ export default function SessionDetail() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Program Components (PCS)</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">درجة مكونات البرنامج (PCS)</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono">
@@ -327,7 +327,7 @@ export default function SessionDetail() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-muted-foreground">Deductions</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">الخصومات</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold font-mono text-destructive">
@@ -340,63 +340,62 @@ export default function SessionDetail() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Technical Elements</CardTitle>
-            <CardDescription>Detailed breakdown of executed elements</CardDescription>
+            <CardTitle>العناصر الفنية</CardTitle>
+            <CardDescription>تفاصيل العناصر المنفّذة</CardDescription>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <Button variant="outline" size="sm" onClick={() => openElementDialog(null)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Element
+              <Plus className="w-4 h-4 me-2" />
+              إضافة عنصر
             </Button>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>{editingElement ? "Edit Technical Element" : "Add Technical Element"}</DialogTitle>
+                <DialogTitle>{editingElement ? "تعديل عنصر فني" : "إضافة عنصر فني"}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4 pt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="code">Element Code</Label>
-                    <Input id="code" value={elementCode} onChange={(e) => setElementCode(e.target.value)} required placeholder="e.g., 4T, CCoSp4" />
+                    <Label htmlFor="code">رمز العنصر</Label>
+                    <Input id="code" value={elementCode} onChange={(e) => setElementCode(e.target.value)} required placeholder="مثال: 4T، CCoSp4" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="type">Type</Label>
+                    <Label htmlFor="type">النوع</Label>
                     <Select value={elementType} onValueChange={(v) => setElementType(v as SkatingElementInputElementType)}>
                       <SelectTrigger id="type">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="jump">Jump</SelectItem>
-                        <SelectItem value="spin">Spin</SelectItem>
-                        <SelectItem value="step_sequence">Step Sequence</SelectItem>
-                        <SelectItem value="choreographic">Choreographic</SelectItem>
+                        {Object.entries(ELEMENT_TYPE_LABELS).map(([value, text]) => (
+                          <SelectItem key={value} value={value}>{text}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="bv">Base Value</Label>
+                    <Label htmlFor="bv">القيمة الأساسية</Label>
                     <Input id="bv" type="number" step="0.01" value={baseValue} onChange={(e) => setBaseValue(e.target.value)} required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="goe">GOE (+/-)</Label>
+                    <Label htmlFor="goe">درجة التنفيذ GOE (+/-)</Label>
                     <Input id="goe" type="number" step="0.01" value={goe} onChange={(e) => setGoe(e.target.value)} required />
                   </div>
                 </div>
                 
                 <div className="flex gap-4 pt-2">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Checkbox id="underRotated" checked={isUnderRotated} onCheckedChange={(checked) => setIsUnderRotated(!!checked)} />
-                    <Label htmlFor="underRotated" className="font-normal cursor-pointer">Under-rotated (&lt;)</Label>
+                    <Label htmlFor="underRotated" className="font-normal cursor-pointer">ناقصة الدوران (&lt;)</Label>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center gap-2">
                     <Checkbox id="fall" checked={isFallDown} onCheckedChange={(checked) => setIsFallDown(!!checked)} />
-                    <Label htmlFor="fall" className="font-normal cursor-pointer text-destructive">Fall</Label>
+                    <Label htmlFor="fall" className="font-normal cursor-pointer text-destructive">سقوط</Label>
                   </div>
                 </div>
 
                 <div className="pt-4 flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                  <Button type="button" variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
                   <Button type="submit" disabled={isSavingElement}>
-                    {isSavingElement ? "Saving..." : editingElement ? "Save Changes" : "Add Element"}
+                    {isSavingElement ? "جارٍ الحفظ..." : editingElement ? "حفظ التغييرات" : "إضافة العنصر"}
                   </Button>
                 </div>
               </form>
@@ -409,52 +408,52 @@ export default function SessionDetail() {
               {[1, 2, 3].map(i => <Skeleton key={i} className="h-12" />)}
             </div>
           ) : (
-            <div className="w-full overflow-auto">
+            <div className="relative w-full overflow-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-muted-foreground">
-                    <th className="text-left font-medium pb-2 pr-4">#</th>
-                    <th className="text-left font-medium pb-2 pr-4">Element</th>
-                    <th className="text-left font-medium pb-2 pr-4">Type</th>
-                    <th className="text-right font-medium pb-2 pr-4">Base Value</th>
-                    <th className="text-right font-medium pb-2 pr-4">GOE</th>
-                    <th className="text-right font-medium pb-2 pr-4">Score</th>
-                    <th className="pb-2"><span className="sr-only">Actions</span></th>
+                    <th className="text-start font-medium pb-2 pe-4">#</th>
+                    <th className="text-start font-medium pb-2 pe-4">العنصر</th>
+                    <th className="text-start font-medium pb-2 pe-4">النوع</th>
+                    <th className="text-end font-medium pb-2 pe-4">القيمة الأساسية</th>
+                    <th className="text-end font-medium pb-2 pe-4">GOE</th>
+                    <th className="text-end font-medium pb-2 pe-4">الدرجة</th>
+                    <th className="pb-2"><span className="sr-only">إجراءات</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
                   {elements?.map((el, idx) => (
                     <tr key={el.id} className="hover:bg-muted/50 transition-colors">
-                      <td className="py-3 pr-4 text-muted-foreground">{idx + 1}</td>
-                      <td className="py-3 pr-4">
+                      <td className="py-3 pe-4 text-muted-foreground">{idx + 1}</td>
+                      <td className="py-3 pe-4">
                         <span className="font-mono font-bold bg-secondary px-2 py-1 rounded text-foreground">{el.elementCode}</span>
                         {(el.isUnderRotated || el.isFallDown) && (
                            <div className="flex gap-1 mt-1">
                              {el.isUnderRotated && <span className="text-xs text-destructive font-bold">&lt;</span>}
-                             {el.isFallDown && <span className="text-xs text-destructive font-bold">Fall</span>}
+                             {el.isFallDown && <span className="text-xs text-destructive font-bold">سقوط</span>}
                            </div>
                         )}
                       </td>
-                      <td className="py-3 pr-4 capitalize text-muted-foreground">{el.elementType.replace('_', ' ')}</td>
-                      <td className="py-3 pr-4 text-right font-mono text-foreground">{el.baseValue.toFixed(2)}</td>
-                      <td className={`py-3 pr-4 text-right font-mono font-semibold ${el.goe > 0 ? 'text-green-500 dark:text-green-400' : el.goe < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      <td className="py-3 pe-4 text-muted-foreground">{label(ELEMENT_TYPE_LABELS, el.elementType)}</td>
+                      <td className="py-3 pe-4 text-end font-mono text-foreground">{el.baseValue.toFixed(2)}</td>
+                      <td className={`py-3 pe-4 text-end font-mono font-semibold ${el.goe > 0 ? 'text-green-500 dark:text-green-400' : el.goe < 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
                         {el.goe > 0 ? '+' : ''}{el.goe.toFixed(2)}
                       </td>
-                      <td className="py-3 pr-4 text-right font-mono font-bold text-foreground">
+                      <td className="py-3 pe-4 text-end font-mono font-bold text-foreground">
                         {el.executedScore?.toFixed(2) || (el.baseValue + el.goe).toFixed(2)}
                       </td>
-                      <td className="py-3 text-right whitespace-nowrap">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`Edit ${el.elementCode}`} onClick={() => openElementDialog(el)}>
+                      <td className="py-3 text-end whitespace-nowrap">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={`تعديل ${el.elementCode}`} onClick={() => openElementDialog(el)}>
                           <Pencil className="w-4 h-4" />
                         </Button>
                         <ConfirmDelete
                           trigger={
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" aria-label={`Delete ${el.elementCode}`}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" aria-label={`حذف ${el.elementCode}`}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           }
-                          title={`Delete ${el.elementCode}?`}
-                          description="This element will be removed from the session."
+                          title={`حذف ${el.elementCode}؟`}
+                          description="سيتم حذف هذا العنصر من الجلسة."
                           onConfirm={() => handleDeleteElement(el.id)}
                           isPending={deleteElement.isPending}
                         />
@@ -463,7 +462,7 @@ export default function SessionDetail() {
                   ))}
                   {elements?.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-muted-foreground">No elements logged.</td>
+                      <td colSpan={7} className="py-8 text-center text-muted-foreground">لا توجد عناصر مسجلة.</td>
                     </tr>
                   )}
                 </tbody>

@@ -12,16 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { DISCIPLINE_LABELS, LEVEL_LABELS, label } from "@/lib/labels";
 
-const formatDiscipline = (d: string) => {
-  const map: Record<string, string> = {
-    singles_men: "Men's Singles",
-    singles_ladies: "Ladies' Singles",
-    pairs: "Pairs",
-    ice_dance: "Ice Dance"
-  };
-  return map[d] || d;
-};
+const formatDiscipline = (d: string) => label(DISCIPLINE_LABELS, d);
 
 export default function Athletes() {
   const { data: athletes, isLoading } = useListAthletes();
@@ -49,7 +42,7 @@ export default function Athletes() {
       }
     }, {
       onSuccess: () => {
-        toast({ title: "Success", description: "Athlete added successfully" });
+        toast({ title: "تم", description: "تمت إضافة اللاعب بنجاح" });
         queryClient.invalidateQueries({ queryKey: getListAthletesQueryKey() });
         setOpen(false);
         // Reset form
@@ -59,7 +52,7 @@ export default function Athletes() {
         setNationality("");
       },
       onError: () => {
-        toast({ title: "Error", description: "Failed to add athlete", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّرت إضافة اللاعب", variant: "destructive" });
       }
     });
   };
@@ -67,62 +60,59 @@ export default function Athletes() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Athletes</h1>
+        <h1 className="text-3xl font-bold tracking-tight">اللاعبون</h1>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Athlete
+              <Plus className="w-4 h-4 me-2" />
+              إضافة لاعب
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Athlete</DialogTitle>
+              <DialogTitle>إضافة لاعب جديد</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 pt-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g., Yuzuru Hanyu" />
+                <Label htmlFor="name">الاسم الكامل</Label>
+                <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="مثال: Yuzuru Hanyu" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="discipline">Discipline</Label>
+                  <Label htmlFor="discipline">التخصص</Label>
                   <Select value={discipline} onValueChange={(v) => setDiscipline(v as AthleteInputDiscipline)}>
                     <SelectTrigger id="discipline">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="singles_men">Men's Singles</SelectItem>
-                      <SelectItem value="singles_ladies">Ladies' Singles</SelectItem>
-                      <SelectItem value="pairs">Pairs</SelectItem>
-                      <SelectItem value="ice_dance">Ice Dance</SelectItem>
+                      {Object.entries(DISCIPLINE_LABELS).map(([value, text]) => (
+                        <SelectItem key={value} value={value}>{text}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="level">Level</Label>
+                  <Label htmlFor="level">المستوى</Label>
                   <Select value={level} onValueChange={(v) => setLevel(v as AthleteInputLevel)}>
                     <SelectTrigger id="level">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
-                      <SelectItem value="junior">Junior</SelectItem>
-                      <SelectItem value="senior">Senior</SelectItem>
+                      {Object.entries(LEVEL_LABELS).map(([value, text]) => (
+                        <SelectItem key={value} value={value}>{text}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="nationality">Nationality (Optional)</Label>
-                <Input id="nationality" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="e.g., JPN" />
+                <Label htmlFor="nationality">الجنسية (اختياري)</Label>
+                <Input id="nationality" value={nationality} onChange={(e) => setNationality(e.target.value)} placeholder="مثال: EGY" />
               </div>
               <div className="pt-4 flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
                 <Button type="submit" disabled={createAthlete.isPending}>
-                  {createAthlete.isPending ? "Saving..." : "Save Athlete"}
+                  {createAthlete.isPending ? "جارٍ الحفظ..." : "حفظ اللاعب"}
                 </Button>
               </div>
             </form>
@@ -148,7 +138,7 @@ export default function Athletes() {
                       <div>
                         <h3 className="font-semibold text-lg leading-tight">{athlete.name}</h3>
                         <div className="text-sm text-muted-foreground flex items-center gap-2">
-                          <span className="capitalize">{athlete.level}</span>
+                          <span>{label(LEVEL_LABELS, athlete.level)}</span>
                           <span>•</span>
                           <span>{formatDiscipline(athlete.discipline)}</span>
                         </div>
@@ -160,12 +150,12 @@ export default function Athletes() {
                     <div className="flex gap-4 text-sm">
                       {athlete.personalBestScore && (
                         <div className="flex flex-col">
-                          <span className="text-xs text-muted-foreground">PB Score</span>
+                          <span className="text-xs text-muted-foreground">أفضل نتيجة</span>
                           <span className="font-mono font-bold text-primary">{athlete.personalBestScore.toFixed(2)}</span>
                         </div>
                       )}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                    <ArrowRight className="w-4 h-4 text-muted-foreground rtl:rotate-180" />
                   </div>
                 </CardContent>
               </Card>
@@ -174,9 +164,9 @@ export default function Athletes() {
           {athletes?.length === 0 && (
             <div className="col-span-full py-12 text-center text-muted-foreground border-2 border-dashed border-border rounded-lg">
               <User className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <h3 className="font-medium text-foreground">No athletes yet</h3>
-              <p className="text-sm mt-1">Add your first athlete to get started</p>
-              <Button variant="outline" className="mt-4" onClick={() => setOpen(true)}>Add Athlete</Button>
+              <h3 className="font-medium text-foreground">لا يوجد لاعبون بعد</h3>
+              <p className="text-sm mt-1">أضف أول لاعب للبدء</p>
+              <Button variant="outline" className="mt-4" onClick={() => setOpen(true)}>إضافة لاعب</Button>
             </div>
           )}
         </div>

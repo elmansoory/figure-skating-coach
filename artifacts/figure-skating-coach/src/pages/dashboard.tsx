@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, Activity, ClipboardList, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
-import { format } from "date-fns";
+import { DISCIPLINE_LABELS, LEVEL_LABELS, SESSION_TYPE_LABELS, formatDate, label } from "@/lib/labels";
 
 export default function Dashboard() {
   const { data: summary, isLoading } = useGetDashboardSummary();
@@ -11,7 +11,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">لوحة التحكم</h1>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 w-full" />)}
         </div>
@@ -27,12 +27,12 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+      <h1 className="text-3xl font-bold tracking-tight">لوحة التحكم</h1>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Athletes</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">إجمالي اللاعبين</CardTitle>
             <Users className="w-4 h-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -41,7 +41,7 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Logged Sessions</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">الجلسات المسجلة</CardTitle>
             <Activity className="w-4 h-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -50,7 +50,7 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Training Programs</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">برامج التدريب</CardTitle>
             <ClipboardList className="w-4 h-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -59,7 +59,7 @@ export default function Dashboard() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Average Score</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">متوسط الدرجات</CardTitle>
             <TrendingUp className="w-4 h-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -71,8 +71,8 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Recent Sessions</CardTitle>
-            <CardDescription>Latest logged performances and practices</CardDescription>
+            <CardTitle>أحدث الجلسات</CardTitle>
+            <CardDescription>آخر العروض والتمارين المسجلة</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -82,9 +82,9 @@ export default function Dashboard() {
                     <div>
                       <div className="font-semibold text-sm">{session.athleteName}</div>
                       <div className="text-xs text-muted-foreground flex gap-2">
-                        <span>{format(new Date(session.date), "MMM d, yyyy")}</span>
+                        <span>{formatDate(session.date, "d MMM yyyy")}</span>
                         <span>•</span>
-                        <span className="capitalize">{session.sessionType.replace('_', ' ')}</span>
+                        <span>{label(SESSION_TYPE_LABELS, session.sessionType)}</span>
                       </div>
                     </div>
                     {session.totalScore ? (
@@ -94,7 +94,7 @@ export default function Dashboard() {
                 </Link>
               ))}
               {summary.recentSessions.length === 0 && (
-                <div className="text-sm text-muted-foreground text-center py-4">No recent sessions found.</div>
+                <div className="text-sm text-muted-foreground text-center py-4">لا توجد جلسات حديثة.</div>
               )}
             </div>
           </CardContent>
@@ -102,8 +102,8 @@ export default function Dashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Top Athletes</CardTitle>
-            <CardDescription>Athletes by personal best score</CardDescription>
+            <CardTitle>أفضل اللاعبين</CardTitle>
+            <CardDescription>اللاعبون حسب أفضل نتيجة شخصية</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -113,21 +113,21 @@ export default function Dashboard() {
                     <div>
                       <div className="font-semibold text-sm">{athlete.name}</div>
                       <div className="text-xs text-muted-foreground flex gap-2">
-                        <span className="capitalize">{athlete.level}</span>
+                        <span>{label(LEVEL_LABELS, athlete.level)}</span>
                         <span>•</span>
-                        <span className="capitalize">{athlete.discipline.replace('_', ' ')}</span>
+                        <span>{label(DISCIPLINE_LABELS, athlete.discipline)}</span>
                       </div>
                     </div>
                     {athlete.personalBestScore ? (
                       <div className="font-mono font-bold">{athlete.personalBestScore.toFixed(2)}</div>
                     ) : (
-                      <div className="text-xs text-muted-foreground">No score</div>
+                      <div className="text-xs text-muted-foreground">لا توجد درجة</div>
                     )}
                   </div>
                 </Link>
               ))}
               {summary.topAthletes.length === 0 && (
-                <div className="text-sm text-muted-foreground text-center py-4">No athletes found.</div>
+                <div className="text-sm text-muted-foreground text-center py-4">لا يوجد لاعبون.</div>
               )}
             </div>
           </CardContent>
