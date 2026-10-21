@@ -10,170 +10,170 @@ const RULES: InsertRule[] = [
   // general
   {
     category: "general",
-    title: "How a segment is scored",
+    title: "كيف تُحتسب درجة القطعة",
     description:
-      "Total Segment Score = Technical Element Score (TES) + Program Component Score (PCS) − Deductions. The competition result is the sum of the Short Program and Free Skating segment scores.",
+      "مجموع درجة القطعة = درجة العناصر الفنية (TES) + درجة مكونات البرنامج (PCS) − الخصومات. نتيجة المسابقة هي مجموع درجتي البرنامج القصير والبرنامج الحر.",
     details:
-      "TES: base value of each element plus its GOE, as identified by the technical panel.\nPCS: the judges' component marks multiplied by the segment factor.\nDeductions: falls, time, costume/prop and other violations applied by the referee and technical panel.",
+      "درجة العناصر الفنية (TES): القيمة الأساسية لكل عنصر مضافًا إليها درجة التنفيذ (GOE)، وفق ما تحدده اللجنة الفنية.\nدرجة مكونات البرنامج (PCS): درجات الحكام لمكونات البرنامج مضروبة في معامل القطعة.\nالخصومات: السقوط ومخالفات الوقت والملابس والأدوات وغيرها، ويطبقها الحكم العام واللجنة الفنية.",
     isuReference: SINGLE_PAIR_RULES,
   },
   {
     category: "general",
-    title: "Officials: technical panel and judges",
+    title: "المسؤولون: اللجنة الفنية والحكام",
     description:
-      "Elements and their levels are identified by the technical panel (Technical Controller, Technical Specialist and Assistant Technical Specialist). A panel of up to nine judges awards GOE and component marks, supervised by the referee.",
+      "تحدد اللجنة الفنية العناصر ومستوياتها (المراقب الفني والأخصائي الفني ومساعد الأخصائي الفني). وتمنح لجنة من الحكام تصل إلى تسعة حكام درجات التنفيذ (GOE) ودرجات المكونات، تحت إشراف الحكم العام.",
     details:
-      "The technical panel calls jump rotations, edges and spin/step levels, which fixes the base value.\nThe judges only evaluate quality (GOE) and components (PCS).",
+      "تحدد اللجنة الفنية نداءات دوران القفزات والحواف ومستويات الدورانات والخطوات، وهو ما يحدد القيمة الأساسية.\nيقيّم الحكام الجودة فقط: درجة التنفيذ (GOE) ومكونات البرنامج (PCS).",
     isuReference: SINGLE_PAIR_RULES,
   },
   {
     category: "general",
-    title: "Program durations (senior singles)",
+    title: "مدة البرامج (فردي الكبار)",
     description:
-      "Short Program: 2 min 40 s ± 10 s. Free Skating: 4 min ± 10 s. Timing starts with the first movement and ends at the complete stop.",
-    details: "Junior and novice programs have shorter durations – check the category's rules.",
+      "البرنامج القصير: 2 دقيقة و40 ثانية ± 10 ثوانٍ. البرنامج الحر: 4 دقائق ± 10 ثوانٍ. يبدأ التوقيت مع أول حركة وينتهي عند التوقف التام.",
+    details: "برامج الناشئين والمبتدئين أقصر مدة – راجع قواعد الفئة.",
     isuReference: SINGLE_PAIR_RULES,
   },
   {
     category: "general",
-    title: "Senior age eligibility",
+    title: "شرط السن لفئة الكبار",
     description:
-      "From the 2024/25 season a skater must have reached 17 years of age before 1 July preceding the competition to enter senior international events.",
-    details: "The minimum age was raised in steps: 15 (2022/23), 16 (2023/24), 17 (2024/25 onwards).",
+      "اعتبارًا من موسم 2024/25 يجب أن يكون المتزلج قد بلغ 17 عامًا قبل 1 يوليو السابق للمسابقة ليشارك في المسابقات الدولية للكبار.",
+    details: "رُفع الحد الأدنى للسن تدريجيًا: 15 (2022/23)، 16 (2023/24)، 17 (من 2024/25 فصاعدًا).",
     isuReference: "ISU General Regulations – age eligibility",
   },
 
   // jumps
   {
     category: "jumps",
-    title: "Jump types and codes",
+    title: "أنواع القفزات ورموزها",
     description:
-      "There are six recognised jump types: Toe loop (T), Salchow (S), Loop (Lo), Flip (F), Lutz (Lz) and Axel (A). The number of revolutions prefixes the code, e.g. 3Lz, 4T, 2A.",
+      "هناك ستة أنواع معترف بها من القفزات: تو لوب (T)، سالكو (S)، لوب (Lo)، فليب (F)، لوتز (Lz)، أكسل (A). يسبق الرمزَ عددُ الدورات، مثل 3Lz و4T و2A.",
     details:
-      "Toe jumps (T, F, Lz) are assisted by the toe pick; edge jumps (S, Lo, A) take off from an edge.\nThe Axel is the only jump taking off forwards, so it has an extra half revolution.",
+      "قفزات الطرف المسنّن (T وF وLz) تستعين بمسنّن الشفرة؛ وقفزات الحافة (S وLo وA) تنطلق من الحافة.\nالأكسل هو القفزة الوحيدة التي تنطلق للأمام، لذلك فيها نصف دورة إضافي.",
     isuReference: SCALE_OF_VALUES,
   },
   {
     category: "jumps",
-    title: "Rotation calls: q, < and <<",
+    title: "نداءات الدوران: q و< و<<",
     description:
-      "The technical panel checks the rotation on landing. Missing rotation reduces the GOE and, beyond a quarter, the base value.",
+      "تراجع اللجنة الفنية اكتمال الدوران عند الهبوط. نقص الدوران يخفض درجة التنفيذ (GOE)، وإذا تجاوز الربع يخفض القيمة الأساسية أيضًا.",
     details:
-      "q (quarter) – landed exactly a quarter short: full base value, GOE reduced.\n< (under-rotated) – more than a quarter but less than half short: reduced base value.\n<< (downgraded) – half a revolution or more short: valued as the jump with one revolution less.",
+      "q (ربع) – هبوط ناقص ربع دورة بالضبط: القيمة الأساسية كاملة مع خفض درجة التنفيذ (GOE).\n< (ناقص الدوران) – نقص أكثر من ربع دورة وأقل من نصفها: قيمة أساسية مخفّضة.\n<< (مخفّض) – نقص نصف دورة أو أكثر: تُحتسب كقفزة بعدد دورات أقل بدورة واحدة.",
     isuReference: TECH_HANDBOOK,
   },
   {
     category: "jumps",
-    title: "Edge calls on Flip and Lutz: ! and e",
+    title: "نداءات الحافة في الفليب واللوتز: ! وe",
     description:
-      "Flip should take off from a back inside edge, Lutz from a back outside edge. Take-off edge errors are marked by the technical panel.",
+      "يجب أن ينطلق الفليب من حافة خلفية داخلية، واللوتز من حافة خلفية خارجية. تؤشر اللجنة الفنية على أخطاء حافة الانطلاق.",
     details:
-      "! (unclear edge) – base value unchanged, GOE must be reduced.\ne (wrong edge) – base value reduced and GOE must be reduced.",
+      "! (حافة غير واضحة) – القيمة الأساسية دون تغيير، ويجب خفض درجة التنفيذ (GOE).\ne (حافة خاطئة) – تُخفض القيمة الأساسية ويجب خفض درجة التنفيذ (GOE).",
     isuReference: TECH_HANDBOOK,
   },
   {
     category: "jumps",
-    title: "Jump combinations and repetitions (Free Skating)",
+    title: "تركيبات القفزات والتكرار (البرنامج الحر)",
     description:
-      "Senior Free Skating allows a maximum of seven jump elements, one of which must be an Axel-type jump. Up to three may be combinations or sequences, and only one combination may contain three jumps.",
+      "يسمح البرنامج الحر للكبار بسبعة عناصر قفز كحد أقصى، يجب أن يكون أحدها من نوع الأكسل. ويجوز أن يكون حتى ثلاثة منها تركيبات أو تسلسلات قفز، ولا يجوز أن تحتوي إلا تركيبة واحدة على ثلاث قفزات.",
     details:
-      "Only two triple or quadruple jumps may be repeated, and each only once; at least one of the repetitions must be in a combination or sequence.\nAn extra or non-permitted repetition receives no value.",
+      "لا يجوز تكرار إلا قفزتين ثلاثيتين أو رباعيتين، وكل منهما مرة واحدة فقط؛ ويجب أن يكون أحد التكرارين على الأقل ضمن تركيبة أو تسلسل.\nالعنصر الزائد أو التكرار غير المسموح لا يُمنح أي قيمة.",
     isuReference: SINGLE_PAIR_RULES,
   },
   {
     category: "jumps",
-    title: "Second-half bonus",
+    title: "مكافأة النصف الثاني",
     description:
-      "Jumps performed in the second half of a program earn a 10% bonus on their base value: the last jump element in the Short Program and the last three jump elements in the Free Skating.",
+      "القفزات المؤداة في النصف الثاني من البرنامج تحصل على مكافأة 10% من قيمتها الأساسية: آخر عنصر قفز في البرنامج القصير، وآخر ثلاثة عناصر قفز في البرنامج الحر.",
     isuReference: SINGLE_PAIR_RULES,
   },
 
   // spins
   {
     category: "spins",
-    title: "Spin codes",
+    title: "رموز الدورانات",
     description:
-      "Spins are coded by position and type: U (upright), L (layback), C (camel), S (sit); Co = combination, F = flying entry, C prefix = change of foot. Example: FCSp4, CCoSp3, LSp4.",
+      "تُرمز الدورانات حسب الوضع والنوع: U (واقف)، L (مائل للخلف/ليباك)، C (كامل)، S (جلوس)؛ Co = تركيبة أوضاع، F = دخول بقفزة، والبادئة C = تغيير القدم. أمثلة: FCSp4 وCCoSp3 وLSp4.",
     isuReference: SCALE_OF_VALUES,
   },
   {
     category: "spins",
-    title: "Spin levels",
+    title: "مستويات الدوران",
     description:
-      "Spins receive a level from B (basic) to 4. The level is set by the number of features achieved: one feature for Level 1, two for Level 2, three for Level 3 and four for Level 4.",
+      "يحصل الدوران على مستوى من B (أساسي) إلى 4. ويتحدد المستوى بعدد الميزات المحققة: ميزة واحدة للمستوى 1، وميزتان للمستوى 2، وثلاث للمستوى 3، وأربع للمستوى 4.",
     details:
-      "Typical features: difficult variations of position, change of foot by jump, difficult entry or exit, clear change of edge, both directions, at least 8 revolutions in one position without changing position or variation.\nA position counts only when held for at least 2 revolutions.",
+      "ميزات نموذجية: تنويعات صعبة للوضع، تغيير القدم بقفزة، دخول أو خروج صعب، تغيير واضح للحافة، الدوران في الاتجاهين، 8 دورات على الأقل في وضع واحد دون تغيير الوضع أو التنويع.\nلا يُحتسب الوضع إلا إذا استمر دورتين على الأقل.",
     isuReference: TECH_HANDBOOK,
   },
 
   // steps
   {
     category: "steps",
-    title: "Step Sequence levels",
+    title: "مستويات تسلسل الخطوات",
     description:
-      "The Step Sequence (StSq) receives a level from B to 4 based on the variety and difficulty of turns and steps, rotations in both directions, use of body movements and difficult turn combinations.",
+      "يحصل تسلسل الخطوات (StSq) على مستوى من B إلى 4 بناءً على تنوع وصعوبة الدورات والخطوات، والدوران في الاتجاهين، واستخدام حركات الجسم، وتركيبات الدورات الصعبة.",
     details:
-      "Difficult turns: twizzles, brackets, loops, counters, rockers and three turns, executed on clean edges.\nThe sequence should cover the full ice surface.",
+      "الدورات الصعبة: تويزل، براكت، لوب، كاونتر، روكر، والدورة الثلاثية، مؤداة على حواف نظيفة.\nيجب أن يغطي التسلسل مساحة الجليد كاملة.",
     isuReference: TECH_HANDBOOK,
   },
   {
     category: "steps",
-    title: "Choreographic Sequence",
+    title: "التسلسل الكوريوغرافي",
     description:
-      "The Choreographic Sequence (ChSq1) in Free Skating has a fixed base value and no level; it is evaluated only by GOE on its creativity, musicality and use of the ice.",
+      "للتسلسل الكوريوغرافي (ChSq1) في البرنامج الحر قيمة أساسية ثابتة وبلا مستوى؛ ويُقيَّم بدرجة التنفيذ (GOE) فقط من حيث الإبداع والموسيقية واستخدام مساحة الجليد.",
     isuReference: SCALE_OF_VALUES,
   },
 
   // goe
   {
     category: "goe",
-    title: "Grade of Execution scale",
+    title: "مقياس درجة التنفيذ",
     description:
-      "Each judge grades every element from −5 to +5. Each GOE step is worth 10% of the element's base value. The highest and lowest marks are dropped and the rest are averaged (trimmed mean).",
-    details: "A fall on an element always results in a GOE of −5.",
+      "يمنح كل حكم كل عنصر درجة من −5 إلى +5. كل درجة من درجات التنفيذ (GOE) تساوي 10% من القيمة الأساسية للعنصر. تُحذف أعلى وأدنى درجة ويُحسب متوسط الباقي (المتوسط المشذّب).",
+    details: "السقوط في أي عنصر يؤدي دائمًا إلى درجة تنفيذ −5.",
     isuReference: SCALE_OF_VALUES,
   },
   {
     category: "goe",
-    title: "Positive GOE criteria for jumps",
+    title: "معايير درجة التنفيذ الإيجابية للقفزات",
     description:
-      "Positive GOE is built from criteria such as very good height and distance, good take-off and landing, effortless flow from entry to exit, steps or unexpected entry, body position variations, and matching the music.",
-    details: "For +4 and +5 the first three criteria in the guidelines must be clearly present.",
+      "تُبنى درجة التنفيذ (GOE) الإيجابية على معايير مثل الارتفاع والمسافة الجيدين جدًا، والانطلاق والهبوط الجيدين، والانسياب السلس من الدخول إلى الخروج، والخطوات أو الدخول غير المتوقع، وتنويعات وضع الجسم، والتوافق مع الموسيقى.",
+    details: "للحصول على +4 و+5 يجب أن تتوفر بوضوح المعايير الثلاثة الأولى في الإرشادات.",
     isuReference: SCALE_OF_VALUES,
   },
 
   // pcs
   {
     category: "pcs",
-    title: "Program Components",
+    title: "مكونات البرنامج",
     description:
-      "Since 2022/23 there are three program components: Composition, Presentation and Skating Skills. Each is marked from 0.25 to 10.00 in steps of 0.25.",
+      "منذ موسم 2022/23 أصبحت مكونات البرنامج ثلاثة: التركيب، والتقديم، ومهارات التزلج. ويُمنح كل منها درجة من 0.25 إلى 10.00 بخطوات قدرها 0.25.",
     details:
-      "Composition: intentional, developed arrangement of all movements according to the music.\nPresentation: involvement through intent, energy and execution; musical sensitivity.\nSkating Skills: edges, steps, turns, flow, speed and control.",
+      "التركيب: ترتيب مقصود ومتطور لكل الحركات وفق الموسيقى.\nالتقديم: الاندماج من خلال القصد والطاقة والتنفيذ؛ والحس الموسيقي.\nمهارات التزلج: الحواف والخطوات والدورات والانسياب والسرعة والتحكم.",
     isuReference: SINGLE_PAIR_RULES,
   },
   {
     category: "pcs",
-    title: "Component factors",
+    title: "معاملات المكونات",
     description:
-      "Component marks are multiplied by a factor that depends on the segment so that PCS is balanced against TES. For senior singles the factor is 1.67 in the Short Program and 3.33 in the Free Skating.",
+      "تُضرب درجات المكونات في معامل يعتمد على القطعة حتى تتوازن درجة مكونات البرنامج (PCS) مع درجة العناصر الفنية (TES). في فردي الكبار يبلغ المعامل 1.67 في البرنامج القصير و3.33 في البرنامج الحر.",
     isuReference: SINGLE_PAIR_RULES,
   },
 
   // penalties
   {
     category: "penalties",
-    title: "Fall deductions (singles)",
+    title: "خصومات السقوط (الفردي)",
     description:
-      "Each fall is deducted from the segment score: −1 for the first and second falls, −2 for the third and fourth, −3 for the fifth and following.",
-    details: "A fall is in addition to the −5 GOE on the element where it happened.",
+      "يُخصم كل سقوط من درجة القطعة: −1 للسقوط الأول والثاني، و−2 للثالث والرابع، و−3 للخامس وما بعده.",
+    details: "هذا الخصم إضافة إلى درجة التنفيذ −5 على العنصر الذي حدث فيه السقوط.",
     isuReference: SINGLE_PAIR_RULES,
   },
   {
     category: "penalties",
-    title: "Time and other violations",
+    title: "مخالفات الوقت وغيرها",
     description:
-      "−1 for every 5 seconds lacking or in excess of the required program time. Costume or prop violations, illegal elements and interruptions also carry deductions applied by the referee.",
+      "−1 لكل 5 ثوانٍ نقصًا أو زيادة عن مدة البرنامج المطلوبة. وتترتب أيضًا خصومات يطبقها الحكم العام على مخالفات الملابس أو الأدوات، والعناصر غير القانونية، والتوقفات.",
     isuReference: SINGLE_PAIR_RULES,
   },
 ];
