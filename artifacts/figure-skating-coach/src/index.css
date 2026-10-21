@@ -107,6 +107,16 @@
   --app-font-sans: 'Inter', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
+
+  /* Data-viz tokens (validated categorical order; status colours are reserved for good/bad) */
+  --viz-1: #2a78d6;
+  --viz-2: #eb6834;
+  --viz-3: #1baf7a;
+  --viz-4: #eda100;
+  --viz-good: #0ca30c;
+  --viz-critical: #d03b3b;
+  --viz-grid: #e1e0d9;
+  --viz-axis: #898781;
 }
 
 .dark {
@@ -144,6 +154,15 @@
   --sidebar-accent-foreground: 0 0% 100%;
   --sidebar-border: 220 30% 15%;
   --sidebar-ring: 210 100% 50%;
+
+  --viz-1: #3987e5;
+  --viz-2: #d95926;
+  --viz-3: #199e70;
+  --viz-4: #c98500;
+  --viz-good: #0ca30c;
+  --viz-critical: #d03b3b;
+  --viz-grid: #2c2c2a;
+  --viz-axis: #898781;
 }
 
 @layer base {

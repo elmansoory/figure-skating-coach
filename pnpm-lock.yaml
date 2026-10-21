@@ -335,6 +335,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/skating-physics':
+        specifier: workspace:*
+        version: link:../../lib/skating-physics
       class-variance-authority:
         specifier: 'catalog:'
         version: 0.7.1
@@ -633,6 +636,15 @@ importers:
       drizzle-kit:
         specifier: ^0.31.9
         version: 0.31.9
+      tsx:
+        specifier: 'catalog:'
+        version: 4.21.0
+
+  lib/skating-physics:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.3.5
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
