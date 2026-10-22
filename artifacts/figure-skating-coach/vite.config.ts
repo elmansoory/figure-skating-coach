@@ -66,6 +66,11 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    // On Replit the platform routes /api to the API server. For local development,
+    // set API_PROXY_TARGET (e.g. http://localhost:8080) to forward it from Vite.
+    proxy: process.env.API_PROXY_TARGET
+      ? { "/api": { target: process.env.API_PROXY_TARGET, changeOrigin: true } }
+      : undefined,
   },
   preview: {
     port,

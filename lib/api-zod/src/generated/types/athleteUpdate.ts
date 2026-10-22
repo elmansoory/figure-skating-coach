@@ -9,11 +9,16 @@ import type { AthleteUpdateDiscipline } from "./athleteUpdateDiscipline";
 import type { AthleteUpdateLevel } from "./athleteUpdateLevel";
 
 export interface AthleteUpdate {
+  /** @minLength 1 */
   name?: string;
   discipline?: AthleteUpdateDiscipline;
   level?: AthleteUpdateLevel;
-  dateOfBirth?: string;
-  nationality?: string;
-  personalBestScore?: number;
-  notes?: string;
+  /** @nullable */
+  dateOfBirth?: string | null;
+  /** @nullable */
+  nationality?: string | null;
+  /** @nullable */
+  personalBestScore?: number | null;
+  /** @nullable */
+  notes?: string | null;
 }

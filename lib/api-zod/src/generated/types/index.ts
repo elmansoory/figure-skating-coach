@@ -38,6 +38,7 @@ export * from "./skatingElementElementType";
 export * from "./skatingElementInput";
 export * from "./skatingElementInputElementType";
 export * from "./skatingElementUpdate";
+export * from "./skatingElementUpdateElementType";
 export * from "./trainingProgram";
 export * from "./trainingProgramDifficulty";
 export * from "./trainingProgramInput";

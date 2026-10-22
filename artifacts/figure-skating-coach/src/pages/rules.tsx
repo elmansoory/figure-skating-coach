@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "wouter";
 import { BookOpen, AlertCircle, Award } from "lucide-react";
 import { ListRulesCategory } from "@workspace/api-client-react";
+import { RULE_CATEGORY_LABELS, label } from "@/lib/labels";
 
 export default function Rules() {
   const [category, setCategory] = useState<ListRulesCategory | undefined>();
@@ -13,15 +14,16 @@ export default function Rules() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">ISU Rules Reference</h1>
+        <h1 className="text-3xl font-bold tracking-tight">مرجع قواعد ISU</h1>
         <select 
+          aria-label="التصنيف"
           className="h-10 px-3 py-2 bg-background border border-input rounded-md text-sm ring-offset-background"
           value={category || ""}
           onChange={(e) => setCategory(e.target.value as ListRulesCategory || undefined)}
         >
-          <option value="">All Categories</option>
+          <option value="">كل التصنيفات</option>
           {Object.entries(ListRulesCategory).map(([k, v]) => (
-            <option key={k} value={v}>{k.charAt(0).toUpperCase() + k.slice(1)}</option>
+            <option key={k} value={v}>{label(RULE_CATEGORY_LABELS, v)}</option>
           ))}
         </select>
       </div>
@@ -43,8 +45,8 @@ export default function Rules() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                        {rule.category}
+                      <span className="text-xs font-semibold text-muted-foreground">
+                        {label(RULE_CATEGORY_LABELS, rule.category)}
                       </span>
                     </div>
                     <h3 className="font-semibold text-lg leading-tight mb-2">{rule.title}</h3>
@@ -57,7 +59,7 @@ export default function Rules() {
           {rules?.length === 0 && (
             <div className="py-12 text-center text-muted-foreground border-2 border-dashed border-border rounded-lg">
               <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-20" />
-              <h3 className="font-medium text-foreground">No rules found</h3>
+              <h3 className="font-medium text-foreground">لا توجد قواعد</h3>
             </div>
           )}
         </div>

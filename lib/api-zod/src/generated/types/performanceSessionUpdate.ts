@@ -10,10 +10,16 @@ import type { PerformanceSessionUpdateSessionType } from "./performanceSessionUp
 export interface PerformanceSessionUpdate {
   sessionType?: PerformanceSessionUpdateSessionType;
   date?: string;
-  totalScore?: number;
-  technicalScore?: number;
-  componentScore?: number;
-  deductions?: number;
-  venue?: string;
-  notes?: string;
+  /** @nullable */
+  totalScore?: number | null;
+  /** @nullable */
+  technicalScore?: number | null;
+  /** @nullable */
+  componentScore?: number | null;
+  /** @nullable */
+  deductions?: number | null;
+  /** @nullable */
+  venue?: string | null;
+  /** @nullable */
+  notes?: string | null;
 }

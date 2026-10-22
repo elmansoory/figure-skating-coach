@@ -1,8 +1,10 @@
+import { lazy, Suspense } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { Layout } from "@/components/layout";
 import Dashboard from "@/pages/dashboard";
@@ -16,6 +18,10 @@ import TrainingDetail from "@/pages/training-detail";
 import NewTraining from "@/pages/new-training";
 import Rules from "@/pages/rules";
 import RuleDetail from "@/pages/rule-detail";
+import PhysicsLab from "@/pages/physics-lab";
+
+// The analytics page bundles ~0.4 MB of competition data, so load it on demand.
+const OlympicAnalytics = lazy(() => import("@/pages/olympic-analytics"));
 
 const queryClient = new QueryClient();
 
@@ -34,6 +40,12 @@ function Router() {
         <Route path="/training/:id" component={TrainingDetail} />
         <Route path="/rules" component={Rules} />
         <Route path="/rules/:id" component={RuleDetail} />
+        <Route path="/physics" component={PhysicsLab} />
+        <Route path="/analytics">
+          <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+            <OlympicAnalytics />
+          </Suspense>
+        </Route>
         <Route component={NotFound} />
       </Switch>
     </Layout>

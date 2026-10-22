@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { DIFFICULTY_LABELS, TRAINING_TYPE_LABELS } from "@/lib/labels";
 import { useToast } from "@/hooks/use-toast";
 
 export default function NewTraining() {
@@ -43,7 +44,7 @@ export default function NewTraining() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !duration) {
-      toast({ title: "Validation Error", description: "Title and duration are required", variant: "destructive" });
+      toast({ title: "خطأ", description: "العنوان والمدة مطلوبان", variant: "destructive" });
       return;
     }
 
@@ -56,17 +57,17 @@ export default function NewTraining() {
         duration: parseInt(duration, 10),
         difficulty: difficulty || undefined,
         focus,
-        athleteId: athleteId ? parseInt(athleteId, 10) : undefined,
+        athleteId: athleteId && athleteId !== "none" ? parseInt(athleteId, 10) : undefined,
         exercises: JSON.stringify(filteredExercises),
         notes
       }
     }, {
       onSuccess: (program) => {
-        toast({ title: "Program created", description: "Training program has been created successfully." });
+        toast({ title: "تم", description: "تم إنشاء برنامج التدريب بنجاح." });
         setLocation(`/training/${program.id}`);
       },
       onError: () => {
-        toast({ title: "Failed to create program", description: "An error occurred.", variant: "destructive" });
+        toast({ title: "خطأ", description: "تعذّر إنشاء البرنامج.", variant: "destructive" });
       }
     });
   };
@@ -75,11 +76,11 @@ export default function NewTraining() {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" asChild>
-          <Link href="/training"><ArrowLeft className="w-4 h-4" /></Link>
+          <Link href="/training" aria-label="رجوع إلى برامج التدريب"><ArrowLeft className="w-4 h-4 rtl:rotate-180" /></Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Training Program</h1>
-          <p className="text-muted-foreground">Design a new training program for athletes</p>
+          <h1 className="text-3xl font-bold tracking-tight">إنشاء برنامج تدريب</h1>
+          <p className="text-muted-foreground">صمّم برنامج تدريب جديدًا للاعبين</p>
         </div>
       </div>
 
@@ -87,64 +88,61 @@ export default function NewTraining() {
         <CardContent className="pt-6">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
-              <h3 className="text-lg font-medium border-b border-border pb-2">Basic Info</h3>
+              <h3 className="text-lg font-medium border-b border-border pb-2">المعلومات الأساسية</h3>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Program Title</Label>
-                  <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="e.g., Pre-competition Speed Drill" />
+                  <Label htmlFor="title">عنوان البرنامج</Label>
+                  <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required placeholder="مثال: تمرين السرعة قبل المنافسة" />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="type">Training Type</Label>
+                  <Label htmlFor="type">نوع التدريب</Label>
                   <Select value={type} onValueChange={(v) => setType(v as TrainingProgramInputType)}>
                     <SelectTrigger id="type">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="on_ice">On Ice</SelectItem>
-                      <SelectItem value="off_ice">Off Ice</SelectItem>
-                      <SelectItem value="drill">Drill</SelectItem>
-                      <SelectItem value="conditioning">Conditioning</SelectItem>
-                      <SelectItem value="choreography">Choreography</SelectItem>
+                      {Object.entries(TRAINING_TYPE_LABELS).map(([value, text]) => (
+                        <SelectItem key={value} value={value}>{text}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="duration">Duration (minutes)</Label>
+                  <Label htmlFor="duration">المدة (بالدقائق)</Label>
                   <Input id="duration" type="number" min="1" value={duration} onChange={(e) => setDuration(e.target.value)} required />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="difficulty">Difficulty (Optional)</Label>
+                  <Label htmlFor="difficulty">الصعوبة (اختياري)</Label>
                   <Select value={difficulty} onValueChange={(v) => setDifficulty(v as TrainingProgramInputDifficulty)}>
                     <SelectTrigger id="difficulty">
-                      <SelectValue placeholder="Select difficulty" />
+                      <SelectValue placeholder="اختر الصعوبة" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                      <SelectItem value="elite">Elite</SelectItem>
+                      {Object.entries(DIFFICULTY_LABELS).map(([value, text]) => (
+                        <SelectItem key={value} value={value}>{text}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="focus">Primary Focus (Optional)</Label>
-                <Input id="focus" value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="e.g., Triple Axel entries, Core strength" />
+                <Label htmlFor="focus">التركيز الأساسي (اختياري)</Label>
+                <Input id="focus" value={focus} onChange={(e) => setFocus(e.target.value)} placeholder="مثال: مداخل الأكسل الثلاثي، قوة الجذع" />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="athlete">Assign to Athlete (Optional)</Label>
+                <Label htmlFor="athlete">تخصيص للاعب (اختياري)</Label>
                 <Select value={athleteId} onValueChange={setAthleteId}>
                   <SelectTrigger id="athlete">
-                    <SelectValue placeholder="General Program (Unassigned)" />
+                    <SelectValue placeholder="برنامج عام (غير مخصص)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">General Program (Unassigned)</SelectItem>
+                    <SelectItem value="none">برنامج عام (غير مخصص)</SelectItem>
                     {athletes?.map(a => (
                       <SelectItem key={a.id} value={a.id.toString()}>{a.name}</SelectItem>
                     ))}
@@ -155,10 +153,10 @@ export default function NewTraining() {
 
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-border pb-2">
-                <h3 className="text-lg font-medium">Exercises</h3>
+                <h3 className="text-lg font-medium">التمارين</h3>
                 <Button type="button" variant="outline" size="sm" onClick={handleAddExercise}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Exercise
+                  <Plus className="w-4 h-4 me-2" />
+                  إضافة تمرين
                 </Button>
               </div>
 
@@ -171,13 +169,14 @@ export default function NewTraining() {
                     <Input 
                       value={ex} 
                       onChange={(e) => handleExerciseChange(index, e.target.value)} 
-                      placeholder={`Exercise ${index + 1}`}
+                      placeholder={`التمرين ${index + 1}`}
                       className="flex-1"
                     />
                     <Button 
                       type="button" 
                       variant="ghost" 
                       size="icon" 
+                      aria-label={`حذف التمرين ${index + 1}`}
                       onClick={() => handleRemoveExercise(index)}
                       disabled={exercises.length === 1}
                       className="text-muted-foreground hover:text-destructive"
@@ -190,20 +189,20 @@ export default function NewTraining() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
+              <Label htmlFor="notes">ملاحظات (اختياري)</Label>
               <Textarea 
                 id="notes" 
                 value={notes} 
                 onChange={(e) => setNotes(e.target.value)} 
-                placeholder="Coach instructions, safety warnings..." 
+                placeholder="تعليمات المدرب، تحذيرات السلامة..." 
                 className="min-h-[100px]"
               />
             </div>
 
             <div className="pt-4 flex justify-end gap-2 border-t border-border mt-6">
-              <Button type="button" variant="outline" onClick={() => setLocation('/training')}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setLocation('/training')}>إلغاء</Button>
               <Button type="submit" disabled={createProgram.isPending}>
-                {createProgram.isPending ? "Creating..." : "Create Program"}
+                {createProgram.isPending ? "جارٍ الإنشاء..." : "إنشاء البرنامج"}
               </Button>
             </div>
           </form>
